@@ -100,15 +100,63 @@ Git checkpoint:
 Final status:
 Working tree clean.
 
+### Step 4 — Synthetic Data Foundation
+Completed by Cursor.
+
+Created:
+- `scripts/generate_data.py`
+- `scripts/seed_historical.py` (optional SQLite import using existing models)
+- `data/historical_events.csv`
+- `backend/tests/test_historical_events.py`
+
+Dataset size:
+2,500 rows
+
+Event types:
+- payment_failure: 1,018
+- checkout_abandonment: 760
+- subscription_failure: 722
+
+Recovered / not recovered:
+1,260 recovered, 1,240 not recovered
+
+Important fields:
+customer_id, event_id, event_type, amount, payment_method, failure_reason, customer_age, account_age, previous_successes, previous_failures, retry_count, checkout_visits, cart_value, subscription_age, timestamp, recovery_action, recovery_time, recovered, recovered_amount
+
+Categories:
+- payment_method: card, paypal, apple_pay, google_pay, ach, bank_transfer
+- recovery_action: retry_payment, update_payment_method, email_reminder, dunning_sequence, sms_nudge, cart_recovery_email, wait_retry, offer_discount
+- failure_reason: event-type-specific (e.g. insufficient_funds, card_expired, cart_hesitation, dunning_unresponsive)
+
+Consistency rules:
+- Checkout abandonment has cart_value and checkout_visits; subscription_age is 0
+- Subscription failure has subscription_age >= 1; cart_value is 0
+- Payment failure has a payment failure reason; subscription_age is 0
+- recovered=false rows have recovered_amount=0
+- Most recovered rows collect the original amount (some partial recoveries)
+
+Tests performed:
+`pytest` from `backend/` — 9 passed (health + dataset tests)
+
+Not done in this step:
+- ML model training
+- Recovery Agent
+- LLM
+- Frontend
+- Database schema changes
+
+Git checkpoint:
+Not created in this step. The human owner will inspect and commit.
+
 ## Current Status
 
-P0 — Backend Foundation: COMPLETE
+P1 — Generate synthetic transaction dataset: COMPLETE
 
 Current owner:
-None / waiting for next task.
+Cursor
 
 Next major task:
-Build the synthetic data foundation and recovery-case API/logic as the next incremental backend step.
+P1 — Build Recovery Agent analysis pipeline
 
 Do not start the next task automatically.
 
