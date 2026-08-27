@@ -1,7 +1,7 @@
 {
   "active_agent": "cursor",
   "status": "ready",
-  "task": "build-backend-foundation",
+  "task": "generate-synthetic-transaction-dataset",
   "handoff_required": false,
   "checkpoint_required": false
 }

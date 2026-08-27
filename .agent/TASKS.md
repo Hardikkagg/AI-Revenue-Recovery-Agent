@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-BACKEND FOUNDATION
+SYNTHETIC DATA
 
 ## Priority
 
-P0 — Build backend foundation
+P1 — Generate synthetic transaction dataset
 
 ## Tasks
 
@@ -14,7 +14,7 @@ P0 — Build backend foundation
 [DONE] Initialize Git repository
 [DONE] Configure Cursor workflow
 [DONE] Configure Antigravity workflow
-[P0] Build backend foundation
+[DONE] Build backend foundation
 [P1] Generate synthetic transaction dataset
 [P1] Build recovery agent
 [P1] Build ML recovery probability model
@@ -28,7 +28,7 @@ P0 — Build backend foundation
 
 ## Current Task
 
-P0 — Build backend foundation
+P1 — Generate synthetic transaction dataset
 
 ## Current Owner
 
