@@ -1,0 +1,7 @@
+{
+  "active_agent": "setup",
+  "status": "initializing",
+  "task": "project-setup",
+  "handoff_required": false,
+  "checkpoint_required": false
+}
