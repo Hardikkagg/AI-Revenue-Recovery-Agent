@@ -1,7 +1,7 @@
 {
-  "active_agent": "setup",
-  "status": "initializing",
-  "task": "project-setup",
+  "active_agent": "cursor",
+  "status": "ready",
+  "task": "build-backend-foundation",
   "handoff_required": false,
   "checkpoint_required": false
 }
