@@ -30,3 +30,15 @@
 - Added optional `scripts/seed_historical.py` to load the CSV into existing SQLite models without schema changes
 - Added tests in `backend/tests/test_historical_events.py`
 - Next task set to P1 — Build Recovery Agent analysis pipeline
+
+## Recovery Agent Analysis Pipeline
+
+- Implemented recovery agent module in `backend/app/agent/` (`detector.py`, `diagnosis.py`, `scoring.py`, `strategy.py`, `orchestrator.py`, `schemas.py`)
+- Supported detection and normalization for `payment_failure`, `checkout_abandonment`, and `subscription_failure`
+- Implemented explainable deterministic diagnosis rules
+- Implemented deterministic recovery scoring with weighting factors and confidence levels (LOW / MEDIUM / HIGH)
+- Implemented strategy selection covering all 7 actions (`retry_now`, `retry_later`, `request_alternate_payment`, `send_checkout_reminder`, `send_subscription_update_request`, `escalate_to_manual_review`, `do_nothing`)
+- Added `POST /recovery/analyze` endpoint to FastAPI backend
+- Added comprehensive test suite in `backend/tests/test_recovery_agent.py` (9 tests, 18 total across backend)
+- Antigravity verified and finalized takeover from Cursor upon usage limit
+- Next task set to P1 — Build real ML recovery probability model

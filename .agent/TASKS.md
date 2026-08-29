@@ -6,7 +6,7 @@ RECOVERY AGENT
 
 ## Priority
 
-P1 — Build Recovery Agent analysis pipeline
+P1 — Build ML recovery probability model
 
 ## Tasks
 
@@ -16,7 +16,7 @@ P1 — Build Recovery Agent analysis pipeline
 [DONE] Configure Antigravity workflow
 [DONE] Build backend foundation
 [DONE] Generate synthetic transaction dataset
-[P1] Build Recovery Agent analysis pipeline
+[DONE] Build Recovery Agent analysis pipeline
 [P1] Build ML recovery probability model
 [P1] Build recovery simulation engine
 [P1] Add LLM reasoning/message generation
@@ -28,7 +28,7 @@ P1 — Build Recovery Agent analysis pipeline
 
 ## Current Task
 
-P1 — Build Recovery Agent analysis pipeline
+P1 — Build ML recovery probability model
 
 ## Current Owner
 

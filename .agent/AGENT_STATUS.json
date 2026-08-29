@@ -1,7 +1,7 @@
 {
-  "active_agent": "cursor",
+  "active_agent": "antigravity",
   "status": "ready",
-  "task": "build-recovery-agent-analysis-pipeline",
+  "task": "build-real-ml-recovery-probability-model",
   "handoff_required": false,
   "checkpoint_required": false
 }

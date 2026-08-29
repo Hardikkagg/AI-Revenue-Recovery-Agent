@@ -148,15 +148,54 @@ Not done in this step:
 Git checkpoint:
 Not created in this step. The human owner will inspect and commit.
 
+### Step 5 — Recovery Agent Analysis Pipeline
+Started by Cursor, finalized & verified by Antigravity upon Cursor hitting its usage limit.
+
+Created:
+- `backend/app/agent/__init__.py`
+- `backend/app/agent/schemas.py`
+- `backend/app/agent/detector.py`
+- `backend/app/agent/diagnosis.py`
+- `backend/app/agent/scoring.py`
+- `backend/app/agent/strategy.py`
+- `backend/app/agent/orchestrator.py`
+- `backend/tests/test_recovery_agent.py`
+
+Modified:
+- `backend/app/main.py` (added `POST /recovery/analyze` endpoint)
+
+Implemented:
+- Event detection & normalization for `payment_failure`, `checkout_abandonment`, and `subscription_failure`
+- Deterministic explainable diagnosis rules with recoverability categories (`recoverable`, `potentially_recoverable`, `unlikely`)
+- Deterministic explainable recovery probability scoring with confidence levels (`LOW`, `MEDIUM`, `HIGH`) and explicit factor breakdown
+- Strategy selection supporting 7 recovery actions (`retry_now`, `retry_later`, `request_alternate_payment`, `send_checkout_reminder`, `send_subscription_update_request`, `escalate_to_manual_review`, `do_nothing`)
+- `RecoveryAgent` orchestrator coordinating DETECT → DIAGNOSE → SCORE → CHOOSE STRATEGY
+- Pydantic models for incoming event validation and structured analysis output
+- FastAPI `POST /recovery/analyze` endpoint with error handling for unsupported and invalid events
+- 9 unit and endpoint integration tests in `backend/tests/test_recovery_agent.py`
+
+Verification:
+- `pytest -v` across all backend tests: 18 passed (health, dataset, and recovery agent pipeline).
+
+Not done in this step:
+- sklearn ML model training/inference
+- Ollama / LLM reasoning and messaging
+- Frontend
+- Action execution / simulation
+- Bandit learning
+
+Git checkpoint:
+Not created. Handed over to user / next step.
+
 ## Current Status
 
-P1 — Generate synthetic transaction dataset: COMPLETE
+P1 — Build Recovery Agent analysis pipeline: COMPLETE
 
 Current owner:
-Cursor
+Antigravity
 
 Next major task:
-P1 — Build Recovery Agent analysis pipeline
+P1 — Build real ML recovery probability model
 
 Do not start the next task automatically.
 
