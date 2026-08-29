@@ -1,0 +1,236 @@
+﻿================================================================================
+AI REVENUE RECOVERY AGENT — SYSTEM & OPERATIONAL MODEL SPECIFICATION
+================================================================================
+
+1. PROBLEM STATEMENT
+--------------------------------------------------------------------------------
+Modern digital businesses lose between 5% to 15% of their total potential
+revenue to failed transactions, involuntary subscriber churn, and checkout drop-
+offs. Traditional recovery methods rely on rigid, static rules (e.g., blanket
+retries every 24 hours or generic automated emails) that fail to adapt to
+specific failure modes, resulting in customer frustration, processor fraud flags,
+and permanently lost revenue.
+
+
+2. THE REVENUE-LOSS PROBLEM
+--------------------------------------------------------------------------------
+Revenue leakage occurs primarily across three critical friction points:
+- Involuntary payment decline: Transitory network errors, processor timeouts,
+  or temporary insufficient funds that fail when retried naively or too frequently.
+- Checkout cart abandonment: High-intent customers dropping off due to unexpected
+  fees, payment-form friction, or checkout hesitations.
+- Involuntary subscription churn: Expired credit cards, billing cycle shifts, or
+  unresponsive dunning sequences leading to silent customer loss.
+
+
+3. PROPOSED SOLUTION
+--------------------------------------------------------------------------------
+An autonomous, intelligent Revenue Recovery Agent that replaces static rules
+with a hybrid decision-making pipeline. The system detects risk events in real
+time, diagnoses root causes, assesses recovery probability, selects high-ROI
+personalized recovery strategies, executes safe simulated interventions,
+observes the outcome, and adapts its policy to maximize lifetime customer value
+and recovered revenue.
+
+
+4. WHAT THE AI REVENUE RECOVERY AGENT IS
+--------------------------------------------------------------------------------
+The AI Revenue Recovery Agent is a specialized hybrid autonomous agent. It is
+not merely an LLM prompt or a standard predictive model; it is an integrated
+system combining:
+- Deterministic rules for fast, safety-critical bounds and guardrails
+- Machine learning for empirical probability estimation
+- Generative language models for contextual reasoning and communication
+- Adaptive learning (reinforcement learning / bandits) for dynamic timing
+- Simulation layers for verified, safe operational execution
+- Persistent state management for auditable financial tracking
+
+
+5. THREE PRIMARY RECOVERY SCENARIOS
+--------------------------------------------------------------------------------
+Scenario A: Payment Failure
+- Characteristics: E-commerce or one-off transaction declined by gateway.
+- Failure types: `network_error`, `processor_timeout`, `insufficient_funds`,
+  `card_expired`, `card_declined`, `fraud_hold`, `session_timeout`.
+- Target strategies: `retry_now` (immediate transient fix), `retry_later` (timed
+  smart delay), `request_alternate_payment`, `escalate_to_manual_review`.
+
+Scenario B: Checkout Abandonment
+- Characteristics: User reached checkout stage but left before payment completion.
+- Failure types: `payment_form_dropoff`, `shipping_cost`, `comparison_shopping`,
+  `cart_hesitation`, `unspecified`.
+- Target strategies: `send_checkout_reminder`, `offer_discount` (future), `do_nothing`.
+
+Scenario C: Subscription Failure
+- Characteristics: Recurring billing renewal failed for an existing subscriber.
+- Failure types: `card_expired`, `dunning_unresponsive`, `insufficient_funds`,
+  `account_closed`, `plan_cancelled_intent`.
+- Target strategies: `send_subscription_update_request`, `retry_later`,
+  `escalate_to_manual_review`.
+
+
+6. COMPLETE AGENTIC WORKFLOW
+--------------------------------------------------------------------------------
+The end-to-end lifecycle follows 9 distinct stages:
+
+  [1. DETECT]
+       Standardizes and validates incoming transaction/event payloads.
+       ↓
+  [2. DIAGNOSE]
+       Evaluates error codes and history to identify root causes and recoverability.
+       ↓
+  [3. SCORE]
+       Estimates recovery probability [0.0 - 1.0] and assigns confidence levels.
+       ↓
+  [4. CHOOSE STRATEGY]
+       Selects optimal action from 7 distinct strategies based on diagnosis and score.
+       ↓
+  [5. GENERATE ACTION]
+       Drafts personalized customer communications and schedules execution parameters.
+       ↓
+  [6. EXECUTE]
+       Dispatches simulated retries, dunning notifications, or manual escalation tasks.
+       ↓
+  [7. OBSERVE OUTCOME]
+       Tracks transaction response (success, failure, customer interaction, timeout).
+       ↓
+  [8. UPDATE LEARNING]
+       Adjusts model weights and bandit action values based on observed outcome.
+       ↓
+  [9. MEASURE REVENUE RECOVERED]
+       Records recovered dollars, ROI metrics, and operational performance.
+
+
+7. ROLE OF DETERMINISTIC RULES / LOGIC
+--------------------------------------------------------------------------------
+Deterministic logic enforces hard business boundaries and safety constraints:
+- Immediate isolation of fraud holds (`fraud_hold`) and closed accounts.
+- Event payload schema validation and constraint normalization.
+- Baseline fallback recovery routing when confidence is low.
+- Guaranteed compliance with gateway retry frequency restrictions.
+
+
+8. ROLE OF MACHINE LEARNING (ML)
+--------------------------------------------------------------------------------
+Supervised statistical models (e.g., scikit-learn Logistic Regression / Gradient
+Boosting) predict recovery probability from tabular historical features:
+- Customer account age, historical recovery rate, past failures vs successes.
+- Event amount, payment method category, failure code historical recovery likelihood.
+- Provides calibrated continuous probability scores rather than heuristic guesses.
+
+
+9. ROLE OF LARGE LANGUAGE MODELS (LLM)
+--------------------------------------------------------------------------------
+The LLM (Ollama / Local LLM) operates within bounded supervisory roles:
+- Natural-language reasoning summaries explaining *why* an action was chosen.
+- Dynamic generation of personalized, non-generic customer outreach messages
+  (email, SMS) tailored to tone, failure type, and customer history.
+- The LLM does NOT blindly control financial transactions directly without logic
+  guardrails.
+
+
+10. ROLE OF LEARNING SYSTEM (MULTI-ARMED BANDIT / RL)
+--------------------------------------------------------------------------------
+The adaptive learning layer optimizes dynamic parameters over time:
+- Selecting optimal retry delays (e.g., +4 hours vs +24 hours vs +72 hours).
+- Channel selection optimization (email vs SMS vs in-app nudge).
+- Balances exploration of new recovery timings with exploitation of proven paths.
+
+
+11. ROLE OF THE SIMULATION ENGINE
+--------------------------------------------------------------------------------
+Enables realistic, safe demonstrations and testing without live banking APIs:
+- Simulates realistic payment gateway responses based on statistical failure rates.
+- Simulates customer behavioral responses (e.g., clicking a reminder link or
+  updating an expired card).
+- Provides deterministic repeatable states for evaluation.
+
+
+12. ROLE OF THE DATABASE (SQLite + SQLAlchemy)
+--------------------------------------------------------------------------------
+Provides persistent state, auditable logs, and reporting data:
+- Tables: `customers`, `recovery_cases`, `events`, `actions`.
+- Tracks the full history of every case across all 9 stages.
+- Powers the real-time financial metrics and analytics dashboard.
+
+
+13. WHAT MAKES THE SYSTEM AGENTIC
+--------------------------------------------------------------------------------
+The system is genuinely agentic because:
+- Autonomous perception-to-action loop: It ingests external stimuli, perceives
+  context, deliberates across multiple modules (rules + ML + LLM), and decides
+  actions autonomously.
+- Goal-directed behavior: Its primary objective is maximizing recovered revenue
+  while minimizing customer churn and processing friction.
+- Closed-loop feedback: It does not stop at outputting recommendations; it
+  observes the actual results of its actions and learns from experience.
+
+
+14. CURRENT IMPLEMENTATION STATUS
+--------------------------------------------------------------------------------
+CURRENTLY IMPLEMENTED & VERIFIED:
+- FastAPI backend foundation (`backend/app/main.py`)
+- SQLite database & SQLAlchemy ORM models (`backend/app/models.py`)
+- Synthetic dataset of 2,500 consistent records (`data/historical_events.csv`)
+- Event detection and schema validation (`backend/app/agent/detector.py`)
+- Explainable deterministic diagnosis engine (`backend/app/agent/diagnosis.py`)
+- Deterministic explainable recovery probability scorer (`backend/app/agent/scoring.py`)
+- Deterministic strategy selector (`backend/app/agent/strategy.py`)
+- Analysis orchestrator (`backend/app/agent/orchestrator.py`)
+- API endpoint `POST /recovery/analyze`
+- 18 automated backend unit and endpoint tests passing (`pytest`)
+
+NOT YET IMPLEMENTED (PLANNED FOR SUBSEQUENT STEPS):
+- Trained scikit-learn recovery probability classifier (Step 6)
+- Action execution and payment gateway simulation engine (Step 7)
+- Local LLM / Ollama reasoning and personalized message generation (Step 8)
+- Adaptive multi-armed bandit learning loop (Step 9)
+- Frontend interactive web dashboard (Step 10)
+
+
+15. FUTURE ROADMAP
+--------------------------------------------------------------------------------
+- Step 6: Train and integrate real scikit-learn ML model on historical dataset.
+- Step 7: Build simulation engine for payment gateways and customer responses.
+- Step 8: Integrate local LLM (Ollama) for reasoning and personalized messaging.
+- Step 9: Implement contextual bandit reinforcement learning for retry timing.
+- Step 10: Build interactive frontend dashboard with live recovery metrics.
+- Step 11: End-to-end polish and 5-minute interactive demonstration dry runs.
+
+
+16. 5-MINUTE INTERACTIVE DEMO FLOW
+--------------------------------------------------------------------------------
+1. Minute 1: Problem Overview & Ingestion
+   Demonstrate incoming transaction failure / cart abandonment event stream.
+2. Minute 2: Real-Time AI Analysis
+   Inspect live output of `POST /recovery/analyze` showing diagnosis, ML recovery
+   probability, confidence rating, and recommended strategy.
+3. Minute 3: Generative LLM Reasoning & Outreach
+   Show personalized message copy generated by LLM tailored to customer context.
+4. Minute 4: Simulated Execution & Observation
+   Trigger virtual recovery action; observe simulated customer response / payment
+   settlement updating SQLite database in real time.
+5. Minute 5: Adaptive Learning & Financial Impact
+   Display recovered revenue counter updating live on dashboard and show bandit
+   learning improving future retry scheduling.
+
+
+17. CURRENT LIMITATIONS
+--------------------------------------------------------------------------------
+- Analysis is currently driven by deterministic scoring heuristics pending ML
+  model training in Step 6.
+- The analysis pipeline does not yet execute simulated actions against the
+  database (actions are currently analytical only).
+- Frontend UI is not yet built; interactions currently take place via FastAPI
+  REST endpoints (`/recovery/analyze`) and automated tests.
+
+
+18. MULTI-AGENT DEVELOPMENT APPROACH
+--------------------------------------------------------------------------------
+- The platform is collaboratively constructed by multiple AI development agents
+  (Cursor and Antigravity).
+- The repository workspace and `.agent/` state files (`STATE.md`, `TASKS.md`,
+  `HANDOFF.md`, `AGENT_STATUS.json`, `DECISIONS.md`, `CHANGELOG.md`) serve as the
+  single source of truth.
+- Sequential ownership ensures zero race conditions or broken code transitions.
+================================================================================

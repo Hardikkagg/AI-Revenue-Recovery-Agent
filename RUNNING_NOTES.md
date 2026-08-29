@@ -187,15 +187,30 @@ Not done in this step:
 Git checkpoint:
 Not created. Handed over to user / next step.
 
+### Step 5.5 — Architecture & Operational Model Documentation
+Completed by Antigravity before starting Step 6.
+
+Created:
+- `ARCHITECTURE.md` (High-level system architecture, current vs. planned matrix, complete Mermaid diagram, data flow, multi-agent protocol)
+- `MODEL.txt` (Comprehensive system & operational model specification covering problem statement, 3 failure scenarios, roles of rules/ML/LLM/bandit/simulation/database, agentic properties, limitations, and 5-minute demo structure)
+
+Updated:
+- `.agent/STATE.md`
+- `.agent/TASKS.md`
+- `.agent/AGENT_STATUS.json`
+- `.agent/CHANGELOG.md`
+- `RUNNING_NOTES.md`
+
 ## Current Status
 
+Documentation (ARCHITECTURE.md & MODEL.txt): COMPLETE
 P1 — Build Recovery Agent analysis pipeline: COMPLETE
 
 Current owner:
 Antigravity
 
 Next major task:
-P1 — Build real ML recovery probability model
+P1 — Build real ML recovery probability model (Step 6)
 
 Do not start the next task automatically.
 

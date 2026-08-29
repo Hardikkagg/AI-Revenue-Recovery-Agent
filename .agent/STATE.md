@@ -29,12 +29,14 @@ Completed:
 - Recovery agent analysis pipeline built and verified (detect → diagnose → score → choose strategy)
 - Added POST /recovery/analyze endpoint
 - All 18 automated backend tests passing
+- Created comprehensive system architecture documentation (`ARCHITECTURE.md`) with Mermaid diagrams
+- Created complete system and operational model specification (`MODEL.txt`)
 
 Current Work:
-None — Step 5 (Recovery Agent analysis pipeline) is complete and verified.
+None — Step 5 and system architecture documentation complete.
 
 Next:
-P1 — Build ML recovery probability model
+P1 — Build ML recovery probability model (Step 6)
 
 Important Architecture Decision:
 Cursor and Antigravity must never depend on their previous chat history.

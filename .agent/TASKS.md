@@ -17,6 +17,7 @@ P1 — Build ML recovery probability model
 [DONE] Build backend foundation
 [DONE] Generate synthetic transaction dataset
 [DONE] Build Recovery Agent analysis pipeline
+[DONE] Create system architecture and model documentation (ARCHITECTURE.md, MODEL.txt)
 [P1] Build ML recovery probability model
 [P1] Build recovery simulation engine
 [P1] Add LLM reasoning/message generation
@@ -28,11 +29,11 @@ P1 — Build ML recovery probability model
 
 ## Current Task
 
-P1 — Build ML recovery probability model
+P1 — Build ML recovery probability model (Step 6)
 
 ## Current Owner
 
-Cursor
+Antigravity
 
 ## Status
 

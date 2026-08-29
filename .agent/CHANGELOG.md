@@ -42,3 +42,9 @@
 - Added comprehensive test suite in `backend/tests/test_recovery_agent.py` (9 tests, 18 total across backend)
 - Antigravity verified and finalized takeover from Cursor upon usage limit
 - Next task set to P1 — Build real ML recovery probability model
+
+## Architecture & Model Documentation
+
+- Created `ARCHITECTURE.md` documenting current implementation, future roadmap, data flow, multi-agent protocol, and complete Mermaid diagram
+- Created `MODEL.txt` specifying problem statement, recovery scenarios, rules/ML/LLM/bandit/simulation roles, agentic properties, and 5-minute demo structure
+- Synchronized `.agent/` state files and `RUNNING_NOTES.md` before starting Step 6
