@@ -75,3 +75,14 @@
 - Added comprehensive test suite in `backend/tests/test_simulation.py` (12 tests); total backend tests increased from 29 to 41 passing (100% green).
 - Next task set to P1 — Add LLM reasoning/message generation (Step 8).
 
+## LLM Reasoning & Message Generation (Step 8)
+
+- Created modular local LLM package under `backend/app/llm/` (`schemas.py`, `client.py`, `prompts.py`, `service.py`, `__init__.py`).
+- Implemented lightweight `OllamaClient` with configurable endpoint (`OLLAMA_BASE_URL`, default: `http://localhost:11434`), model (`OLLAMA_MODEL`, default: `llama3.2`), JSON mode, and timeout protection.
+- Enforced strict prompt safety boundaries preventing the LLM from overriding strategies, fabricating financial successes or unauthorized discounts, and leaking internal ML probabilities.
+- Built deterministic fallback generator (`generate_fallback_reasoning_and_message`) ensuring zero downtime if Ollama is absent or disabled.
+- Integrated LLM service into `RecoveryAgent.analyze`, enriching `AnalysisResult.llm_generation` across both `/recovery/analyze` and `/recovery/simulate` endpoints.
+- Added comprehensive test suite in `backend/tests/test_llm.py` (12 unit and integration tests); total backend tests increased from 41 to 53 passing (100% green).
+- Next task set to P1 — Add adaptive retry learning (Step 9).
+
+

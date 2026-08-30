@@ -4,7 +4,7 @@ Project:
 AI Revenue Recovery Agent
 
 Status:
-RECOVERY SIMULATION ENGINE COMPLETE
+LLM REASONING & MESSAGE GENERATION COMPLETE
 
 Current Owner:
 Antigravity
@@ -42,12 +42,16 @@ Completed:
 - Implemented outcome observation, explainability, and database persistence (Customer, RecoveryCase, Event, Action)
 - Added POST /recovery/simulate endpoint while preserving POST /recovery/analyze
 - Added comprehensive simulation test suite (`backend/tests/test_simulation.py`) — all 41 backend tests passing (100% green)
+- Built modular local LLM reasoning & message generation layer (`backend/app/llm/`) with local Ollama integration and deterministic template fallback
+- Enforced prompt safety constraints (LLM cannot change strategy, cannot fabricate financial outcomes, cannot leak raw ML scores)
+- Integrated LLM generation into `RecoveryAgent.analyze` pipeline, enriching `AnalysisResult.llm_generation`
+- Added comprehensive LLM test suite (`backend/tests/test_llm.py`) — all 53 backend tests passing (100% green)
 
 Current Work:
-None — Step 7 complete.
+None — Step 8 complete.
 
 Next:
-P1 — Add LLM reasoning/message generation (Step 8)
+P1 — Add adaptive retry learning (Step 9)
 
 Important Architecture Decision:
 Cursor and Antigravity must never depend on their previous chat history.
@@ -63,5 +67,6 @@ Product Agent:
 AI Revenue Recovery Agent
 
 Product workflow:
-Detect → Diagnose → Score → Choose Strategy → Execute (Simulate) → Observe Outcome → Learn → Measure
+Detect → Diagnose → Score → Choose Strategy → LLM Reason/Communicate → Execute (Simulate) → Observe Outcome → Learn → Measure
+
 

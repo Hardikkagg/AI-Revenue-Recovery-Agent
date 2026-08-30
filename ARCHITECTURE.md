@@ -1,4 +1,4 @@
-﻿# AI Revenue Recovery Agent — Architecture Specification
+# AI Revenue Recovery Agent — Architecture Specification
 
 ## 1. Executive Overview
 
@@ -33,24 +33,26 @@ flowchart TD
         STRAT --> STRAT_OUT[StrategyResult<br/>Selected Strategy & Rationale]
     end
 
-    subgraph Future_ML["3. Statistical ML Scoring [PLANNED - Step 6]"]
-        CSV[(data/historical_events.csv<br/>2,500 Synthetic Records)] -.->|Train| SKL[scikit-learn Classifier<br/>GradientBoosting / LogisticReg]
-        SKL -.->|Calibrated Probabilities| SCORER
+    subgraph Machine_Learning["3. Statistical ML Scoring [IMPLEMENTED - Step 6]"]
+        CSV[(data/historical_events.csv<br/>2,500 Synthetic Records)] -->|Train| SKL[scikit-learn Classifier<br/>LogisticRegression Pipeline]
+        SKL -->|Calibrated Probabilities| SCORER
     end
 
-    subgraph Future_LLM["4. Generative Reasoning & Messaging [PLANNED - Step 8]"]
-        STRAT_OUT -.->|Prompt Context| OLLAMA[Local Ollama / LLM Layer]
-        OLLAMA -.->|Personalized Copy| MSG[Tailored Customer Outreach]
-        OLLAMA -.->|Natural Explanations| AUDIT[Audit Log Summary]
+    subgraph LLM_Layer["4. Generative Reasoning & Messaging [IMPLEMENTED - Step 8]"]
+        STRAT_OUT -->|Prompt Context| OLLAMA[Local Ollama / LLM Layer<br/>app.llm.service]
+        OLLAMA -->|Personalized Copy| MSG[Tailored Customer Outreach]
+        OLLAMA -->|Natural Explanations| AUDIT[Audit Log Summary]
+        OLLAMA -.->|Fallback on Disconnect| TEMPLATE[Deterministic Fallback]
     end
 
-    subgraph Future_Execution["5. Simulation & Execution [PLANNED - Step 7]"]
-        STRAT_OUT --> EXEC[Action Execution / Simulation Engine]
-        EXEC --> GATEWAY[Simulated Payment Gateway]
-        EXEC --> COMM[Simulated Comms Engine<br/>Email / SMS / Webhook]
+    subgraph Simulation_Execution["5. Simulation & Execution [IMPLEMENTED - Step 7]"]
+        STRAT_OUT --> EXEC[Action Execution / Simulation Engine<br/>app.simulation.engine]
+        EXEC --> GATEWAY[Simulated Payment Gateway<br/>app.simulation.gateway]
+        EXEC --> COMM[Simulated Comms Engine<br/>app.simulation.communication]
     end
 
     subgraph Future_Learning["6. Adaptive Learning & Feedback [PLANNED - Step 9]"]
+
         GATEWAY & COMM --> OBS[Outcome Observer]
         OBS --> BANDIT[Contextual Bandit / Reinforcement Learner]
         BANDIT -.->|Update Policy Weights| STRAT

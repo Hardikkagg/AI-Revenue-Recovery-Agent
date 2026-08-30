@@ -22,6 +22,8 @@ STRATEGIES = (
     "do_nothing",
 )
 
+from app.llm.schemas import LLMGenerationResult
+
 Confidence = Literal["LOW", "MEDIUM", "HIGH"]
 Recoverability = Literal["recoverable", "potentially_recoverable", "unlikely"]
 
@@ -94,3 +96,5 @@ class AnalysisResult(BaseModel):
     reasoning: list[str]
     score_factors: list[str]
     strategy_reason: str
+    llm_generation: LLMGenerationResult | None = None
+

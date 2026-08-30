@@ -290,8 +290,50 @@ Created:
 Modified:
 - `backend/app/main.py`
 
+### Step 8 — LLM Reasoning & Message Generation
+Completed by Antigravity.
+
+- What was implemented:
+  - Created modular local LLM layer under `backend/app/llm/`:
+    - `schemas.py`: Pydantic definition for `LLMGenerationResult` containing `provider`, `model`, `reasoning`, `customer_message`, `fallback_used`, and `fallback_reason`.
+    - `client.py`: `OllamaClient` using standard Python `urllib` to connect to local Ollama daemon (`/api/generate`) with JSON formatting, temperature 0.2, and timeout protection.
+    - `prompts.py`: `SYSTEM_PROMPT` and `build_recovery_prompt` encapsulating strict safety boundaries (decision authority, no hallucinations, no ML probability leaks, no false execution claims).
+    - `service.py`: `LLMService` orchestrating prompt execution with automatic deterministic fallback generator (`generate_fallback_reasoning_and_message`).
+    - `__init__.py`: Package export.
+  - Integrated LLM generation into `RecoveryAgent.analyze` (`backend/app/agent/orchestrator.py`), attaching `llm_generation` to `AnalysisResult`.
+  - Configured settings in `backend/app/config.py` (`OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `ENABLE_LLM`, `LLM_TIMEOUT_SECONDS`).
+- Local Ollama Integration:
+  - Default URL: `http://localhost:11434`
+  - Default Model: `llama3.2`
+- Fallback Behavior:
+  - When Ollama is offline, unreachable, returns non-200, times out, or when `ENABLE_LLM=false`, the system instantly and cleanly falls back to deterministic template messages and explanations. The API never errors or halts due to LLM issues.
+- Prompt Safety Boundaries:
+  - Strategy is immutable: LLM is explicitly informed the strategy is pre-decided and authoritative.
+  - Non-communicative strategies (`retry_now`, `retry_later`, `escalate_to_manual_review`, `do_nothing`) strictly enforce `customer_message = None`.
+  - Customer messages omit technical internals (raw probabilities, regression coefficients, AI/ML terminology).
+  - Customer messages do not claim payment succeeded before execution or invent unauthorized discounts.
+- API Integration:
+  - Both `POST /recovery/analyze` and `POST /recovery/simulate` now return `llm_generation` metadata without breaking any existing fields.
+- Tests & Verification:
+  - Added comprehensive test suite in `backend/tests/test_llm.py` (12 tests).
+  - All 53 backend tests passing (100% green).
+
+Created:
+- `backend/app/llm/__init__.py`
+- `backend/app/llm/schemas.py`
+- `backend/app/llm/client.py`
+- `backend/app/llm/prompts.py`
+- `backend/app/llm/service.py`
+- `backend/tests/test_llm.py`
+
+Modified:
+- `backend/app/config.py`
+- `backend/app/agent/schemas.py`
+- `backend/app/agent/orchestrator.py`
+
 ## Current Status
 
+Step 8 (LLM Reasoning & Message Generation): COMPLETE
 Step 7 (Recovery Simulation Engine): COMPLETE
 Step 6 (Real ML Recovery Probability Model): COMPLETE
 Synthetic Data ML Separability Audit: COMPLETE (A. REALISTIC / HEALTHY)
@@ -303,9 +345,10 @@ Current owner:
 Antigravity
 
 Next major task:
-P1 — Add LLM reasoning/message generation (Step 8)
+P1 — Add adaptive retry learning (Step 9)
 
 Do not start the next task automatically.
+
 
 
 ## Architecture We Are Following

@@ -19,5 +19,12 @@ class Settings:
     host: str = os.getenv("HOST", "127.0.0.1")
     port: int = int(os.getenv("PORT", "8000"))
 
+    # LLM / Ollama configuration
+    ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    ollama_model: str = os.getenv("OLLAMA_MODEL", "llama3.2")
+    enable_llm: bool = os.getenv("ENABLE_LLM", "true").lower() in ("true", "1", "yes")
+    llm_timeout_seconds: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "3.0"))
+
 
 settings = Settings()
+
