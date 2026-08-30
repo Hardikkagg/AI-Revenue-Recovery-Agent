@@ -1,7 +1,7 @@
 {
   "active_agent": "antigravity",
   "status": "ready",
-  "task": "build-real-ml-recovery-probability-model",
+  "task": "build-recovery-simulation-engine",
   "handoff_required": false,
   "checkpoint_required": false
 }

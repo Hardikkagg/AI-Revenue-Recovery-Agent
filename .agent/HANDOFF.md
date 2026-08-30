@@ -7,60 +7,60 @@ Current Agent:
 Antigravity
 
 Previous Agent:
-Cursor
+Antigravity (took over from Cursor)
 
 Next Agent:
 Cursor / Antigravity
 
 Last Completed Task:
-P1 — Build Recovery Agent analysis pipeline (Step 5)
+P1 — Build ML recovery probability model (Step 6)
 
 Current Task:
-None (Step 5 complete and verified)
+None (Step 6 complete and verified)
 
 Next Task:
-P1 — Build real ML recovery probability model
+P1 — Build recovery simulation engine (Step 7)
 
 Completed Work:
-- Verified and finalized Step 5 implementation handed over from Cursor
-- Verified full Recovery Agent analysis pipeline:
-  - Event detector supporting `payment_failure`, `checkout_abandonment`, and `subscription_failure`
-  - Explainable deterministic diagnosis module with standardized recoverability ratings
-  - Deterministic recovery probability scorer with positive/negative weighting factors and confidence levels (LOW / MEDIUM / HIGH)
-  - Strategy selector supporting all 7 strategies: `retry_now`, `retry_later`, `request_alternate_payment`, `send_checkout_reminder`, `send_subscription_update_request`, `escalate_to_manual_review`, `do_nothing`
-  - RecoveryAgent orchestrator coordinating detect → diagnose → score → strategy
-  - Pydantic request and response schemas in `backend/app/agent/schemas.py`
-  - FastAPI endpoint `POST /recovery/analyze` with error handling
-  - Full test suite in `backend/tests/test_recovery_agent.py`
+- Conducted dataset data validation and ML separability audits (`DATA_VALIDATION.md`, `DATA_MODEL_EVALUATION.md`)
+- Built reproducible ML training script `scripts/train_model.py` with `StandardScaler` + `OneHotEncoder` + `SimpleImputer` preprocessing pipeline and `LogisticRegression` classifier
+- Trained supervised recovery model on `data/historical_events.csv` using 12 approved Group A features without target leakage (excluded `recovered_amount`, `recovery_time`, `recovery_action`, `customer_id`, `event_id`, `timestamp`)
+- Achieved 60.60% holdout test accuracy, 0.6383 test ROC-AUC, 0.6345 F1, and 60.40% ± 1.41% 5-fold CV accuracy
+- Serialized trained model to `backend/models/recovery_model.joblib` and metrics to `backend/models/model_metrics.json`
+- Implemented `app.agent.predictor.MLPredictor` service with model loading, feature conversion, inference, and linear coefficient feature explainability
+- Integrated ML scoring into `app.agent.scoring` with transparent fallback to deterministic scoring if ML model is unavailable or disabled
+- Preserved existing `POST /recovery/analyze` endpoint and agent orchestration contract
+- Added comprehensive ML test suite `backend/tests/test_ml_model.py` (11 tests); all 29 backend tests passing
 
 Files Changed:
-- `backend/app/agent/__init__.py`
-- `backend/app/agent/detector.py`
-- `backend/app/agent/diagnosis.py`
-- `backend/app/agent/orchestrator.py`
-- `backend/app/agent/schemas.py`
-- `backend/app/agent/scoring.py`
-- `backend/app/agent/strategy.py`
-- `backend/app/main.py`
-- `backend/tests/test_recovery_agent.py`
-- `.agent/TASKS.md`
-- `.agent/STATE.md`
-- `.agent/AGENT_STATUS.json`
-- `.agent/HANDOFF.md`
-- `.agent/CHANGELOG.md`
-- `RUNNING_NOTES.md`
+- `scripts/train_model.py` [NEW]
+- `backend/app/agent/predictor.py` [NEW]
+- `backend/models/recovery_model.joblib` [NEW]
+- `backend/models/model_metrics.json` [NEW]
+- `backend/tests/test_ml_model.py` [NEW]
+- `backend/app/agent/scoring.py` [MODIFIED]
+- `backend/requirements.txt` [MODIFIED]
+- `DATA_VALIDATION.md` [NEW]
+- `DATA_MODEL_EVALUATION.md` [NEW]
+- `.agent/STATE.md` [MODIFIED]
+- `.agent/TASKS.md` [MODIFIED]
+- `.agent/CHANGELOG.md` [MODIFIED]
+- `.agent/HANDOFF.md` [MODIFIED]
+- `RUNNING_NOTES.md` [MODIFIED]
 
 Tests Performed:
-- Executed `pytest -v` across all test files (`test_health.py`, `test_historical_events.py`, `test_recovery_agent.py`): 18 passed.
+- Executed `pytest -v` across all test files (`test_health.py`, `test_historical_events.py`, `test_recovery_agent.py`, `test_ml_model.py`): 29 passed (100% green).
 
 Known Problems:
 None
 
 Exact Next Action:
-Start `P1 — Build real ML recovery probability model` using `data/historical_events.csv` with scikit-learn.
+Start `P1 — Build recovery simulation engine` (Step 7).
 
 Things the next agent must NOT change unnecessarily:
+- ML feature set schema in `scripts/train_model.py` and `backend/app/agent/predictor.py`
 - Orchestrator interface (`RecoveryAgent.analyze` / `POST /recovery/analyze`)
-- Event types, failure reasons, and strategy definitions in `backend/app/agent/schemas.py`
+- Fallback scoring mechanism in `backend/app/agent/scoring.py`
 - Multi-agent handoff protocol in `AGENTS.md`
 - SQLite schema in `backend/app/models.py`
+

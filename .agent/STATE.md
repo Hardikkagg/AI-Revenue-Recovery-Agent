@@ -33,12 +33,15 @@ Completed:
 - Created complete system and operational model specification (`MODEL.txt`)
 - Completed comprehensive data quality, realism, and target leakage audit of synthetic dataset (`DATA_VALIDATION.md` — Result: PASS)
 - Completed ML separability and generalization audit (`DATA_MODEL_EVALUATION.md` — Verdict: A. REALISTIC / HEALTHY)
+- Built and trained supervised ML recovery probability model (`scripts/train_model.py`, `backend/models/recovery_model.joblib`)
+- Integrated ML predictor (`app.agent.predictor.MLPredictor`) with deterministic fallback into `app.agent.scoring`
+- Added comprehensive ML test suite (`backend/tests/test_ml_model.py`) — all 29 backend tests passing
 
 Current Work:
-None — Step 5, documentation, and dataset/model audits complete.
+None — Step 6 complete.
 
 Next:
-P1 — Build ML recovery probability model (Step 6)
+P1 — Build recovery simulation engine (Step 7)
 
 Important Architecture Decision:
 Cursor and Antigravity must never depend on their previous chat history.

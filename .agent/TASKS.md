@@ -6,7 +6,7 @@ RECOVERY AGENT
 
 ## Priority
 
-P1 — Build ML recovery probability model
+P1 — Build recovery simulation engine
 
 ## Tasks
 
@@ -18,8 +18,8 @@ P1 — Build ML recovery probability model
 [DONE] Generate synthetic transaction dataset
 [DONE] Build Recovery Agent analysis pipeline
 [DONE] Create system architecture and model documentation (ARCHITECTURE.md, MODEL.txt)
-[P1] Build ML recovery probability model
-[P1] Build recovery simulation engine
+[DONE] Build ML recovery probability model (Step 6)
+[P1] Build recovery simulation engine (Step 7)
 [P1] Add LLM reasoning/message generation
 [P1] Add adaptive retry learning
 [P1] Build frontend dashboard
@@ -29,7 +29,7 @@ P1 — Build ML recovery probability model
 
 ## Current Task
 
-P1 — Build ML recovery probability model (Step 6)
+P1 — Build recovery simulation engine (Step 7)
 
 ## Current Owner
 

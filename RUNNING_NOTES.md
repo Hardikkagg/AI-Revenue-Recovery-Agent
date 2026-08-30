@@ -233,8 +233,40 @@ Completed by Antigravity before starting Step 6.
 Created:
 - `DATA_MODEL_EVALUATION.md`
 
+### Step 6 — Real ML Recovery Probability Model
+Completed by Antigravity.
+
+- Model Architecture: `LogisticRegression` with `StandardScaler` (numerical features) + `OneHotEncoder` (categorical features) + `SimpleImputer` pipeline.
+- Training Data: `data/historical_events.csv` (2,500 rows).
+- Features Used (12 Approved Group A Features):
+  - Numerical: `amount`, `customer_age`, `account_age`, `previous_successes`, `previous_failures`, `retry_count`, `checkout_visits`, `cart_value`, `subscription_age`
+  - Categorical: `event_type`, `payment_method`, `failure_reason`
+- Features Excluded (Target Leakage / Circularity / Meta):
+  - Leakage: `recovered_amount`, `recovery_time`
+  - Operational Circularity: `recovery_action`
+  - Identifiers: `customer_id`, `event_id`, `timestamp`
+- Evaluation Metrics:
+  - Train Accuracy: 61.95% | Train ROC-AUC: 0.6611
+  - Test Accuracy: 60.60% | Test ROC-AUC: 0.6383
+  - Precision: 0.5958 | Recall: 0.6786 | F1 Score: 0.6345
+  - Confusion Matrix: `[[132, 116], [81, 171]]` (Holdout test $n=500$)
+  - 5-Fold Stratified CV Accuracy: 60.40% ± 1.41% | CV ROC-AUC: 0.6389 ± 0.0230
+- Integration:
+  - `backend/app/agent/predictor.py` provides `MLPredictor` with feature conversion, model loading, and coefficient-based factor explainability.
+  - `backend/app/agent/scoring.py` updated to use `MLPredictor` for recovery probability scoring while preserving deterministic baseline as a safe fallback when model is unavailable.
+  - Endpoint `POST /recovery/analyze` verified.
+  - Added tests in `backend/tests/test_ml_model.py`. Full test suite passes: 29/29 tests green.
+
+Created:
+- `scripts/train_model.py`
+- `backend/models/recovery_model.joblib`
+- `backend/models/model_metrics.json`
+- `backend/app/agent/predictor.py`
+- `backend/tests/test_ml_model.py`
+
 ## Current Status
 
+Step 6 (Real ML Recovery Probability Model): COMPLETE
 Synthetic Data ML Separability Audit: COMPLETE (A. REALISTIC / HEALTHY)
 Synthetic Data Validation: COMPLETE (PASS)
 Documentation (ARCHITECTURE.md & MODEL.txt): COMPLETE
@@ -244,7 +276,7 @@ Current owner:
 Antigravity
 
 Next major task:
-P1 — Build real ML recovery probability model (Step 6)
+P1 — Build recovery simulation engine (Step 7)
 
 Do not start the next task automatically.
 

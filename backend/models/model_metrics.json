@@ -1,0 +1,83 @@
+{
+  "model_type": "LogisticRegression",
+  "dataset_size": 2500,
+  "train_samples": 2000,
+  "test_samples": 500,
+  "class_distribution": {
+    "1": 0.504,
+    "0": 0.496
+  },
+  "features": {
+    "numerical": [
+      "amount",
+      "customer_age",
+      "account_age",
+      "previous_successes",
+      "previous_failures",
+      "retry_count",
+      "checkout_visits",
+      "cart_value",
+      "subscription_age"
+    ],
+    "categorical": [
+      "event_type",
+      "payment_method",
+      "failure_reason"
+    ]
+  },
+  "target": "recovered",
+  "holdout_metrics": {
+    "train_accuracy": 0.6195,
+    "train_roc_auc": 0.6611,
+    "test_accuracy": 0.606,
+    "precision": 0.5958,
+    "recall": 0.6786,
+    "f1_score": 0.6345,
+    "roc_auc": 0.6383,
+    "confusion_matrix": [
+      [
+        132,
+        116
+      ],
+      [
+        81,
+        171
+      ]
+    ]
+  },
+  "cross_validation_5fold": {
+    "cv_accuracy_mean": 0.604,
+    "cv_accuracy_std": 0.0141,
+    "cv_f1_mean": 0.6203,
+    "cv_f1_std": 0.0204,
+    "cv_roc_auc_mean": 0.6389,
+    "cv_roc_auc_std": 0.023
+  },
+  "classification_report": {
+    "0": {
+      "precision": 0.6197183098591549,
+      "recall": 0.532258064516129,
+      "f1-score": 0.5726681127982647,
+      "support": 248.0
+    },
+    "1": {
+      "precision": 0.5958188153310104,
+      "recall": 0.6785714285714286,
+      "f1-score": 0.634508348794063,
+      "support": 252.0
+    },
+    "accuracy": 0.606,
+    "macro avg": {
+      "precision": 0.6077685625950826,
+      "recall": 0.6054147465437788,
+      "f1-score": 0.6035882307961639,
+      "support": 500.0
+    },
+    "weighted avg": {
+      "precision": 0.6076729646169702,
+      "recall": 0.606,
+      "f1-score": 0.603835591740147,
+      "support": 500.0
+    }
+  }
+}

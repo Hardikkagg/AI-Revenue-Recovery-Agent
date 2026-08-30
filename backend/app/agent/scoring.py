@@ -1,30 +1,8 @@
-"""Deterministic recovery-probability scorer.
-
-This is a temporary explainable baseline. It will later be replaced or
-enhanced by a trained scikit-learn model. No ML is trained here.
-
-Major scoring factors
----------------------
-Positive:
-- previous_successes: prior recovered payments
-- low amount (< 40)
-- temporary failure reasons (network_error, processor_timeout, session_timeout)
-- expired card or payment-form dropoff (fixable method/form issues)
-- checkout_visits >= 3 (purchase intent)
-- longer subscription_age (established subscriber)
-- card / wallet payment methods
-
-Negative:
-- previous_failures
-- retry_count (already tried)
-- high amount (> 250)
-- fraud_hold, account_closed, plan_cancelled_intent
-- shipping_cost / comparison_shopping
-- ACH / bank_transfer (slower, harder to retry)
-"""
+"""Recovery-probability scorer using ML model with deterministic baseline fallback."""
 
 from __future__ import annotations
 
+from app.agent.predictor import ml_predictor
 from app.agent.schemas import DetectedEvent, DiagnosisResult, ScoreResult
 
 _TEMPORARY = {"network_error", "processor_timeout", "session_timeout"}
@@ -38,10 +16,10 @@ def _clamp(value: float) -> float:
     return round(max(0.0, min(1.0, value)), 4)
 
 
-def score(event: DetectedEvent, diagnosis: DiagnosisResult) -> ScoreResult:
-    """Return a deterministic probability in [0, 1] plus confidence and factors."""
+def score_deterministic(event: DetectedEvent, diagnosis: DiagnosisResult) -> ScoreResult:
+    """Return a deterministic baseline probability in [0, 1] plus confidence and factors."""
     probability = 0.42
-    factors: list[str] = ["base_rate=0.42"]
+    factors: list[str] = ["baseline_scorer=rule_based", "base_rate=0.42"]
 
     success_boost = min(event.previous_successes, 8) * 0.035
     if success_boost:
@@ -118,3 +96,32 @@ def score(event: DetectedEvent, diagnosis: DiagnosisResult) -> ScoreResult:
         confidence = "MEDIUM"
 
     return ScoreResult(probability=probability, confidence=confidence, factors=factors)
+
+
+def score(
+    event: DetectedEvent,
+    diagnosis: DiagnosisResult,
+    use_ml: bool = True,
+) -> ScoreResult:
+    """Score recovery probability using ML model when available, falling back to deterministic baseline."""
+    if use_ml and ml_predictor.is_available:
+        prediction = ml_predictor.predict(event)
+        if prediction is not None:
+            probability, ml_factors = prediction
+            factors = ["ml_model=LogisticRegression", *ml_factors]
+
+            if diagnosis.recoverability == "unlikely" or event.retry_count >= 4 or probability <= 0.20 or probability >= 0.75:
+                confidence = "HIGH"
+            elif event.failure_reason == "unspecified":
+                confidence = "LOW"
+            else:
+                confidence = "MEDIUM"
+
+            return ScoreResult(
+                probability=probability,
+                confidence=confidence,
+                factors=factors,
+            )
+
+    return score_deterministic(event, diagnosis)
+

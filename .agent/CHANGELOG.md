@@ -48,3 +48,18 @@
 - Created `ARCHITECTURE.md` documenting current implementation, future roadmap, data flow, multi-agent protocol, and complete Mermaid diagram
 - Created `MODEL.txt` specifying problem statement, recovery scenarios, rules/ML/LLM/bandit/simulation roles, agentic properties, and 5-minute demo structure
 - Synchronized `.agent/` state files and `RUNNING_NOTES.md` before starting Step 6
+
+## Synthetic Dataset & ML Separability Audits
+
+- Created `DATA_VALIDATION.md` verifying 100% integrity across 2,500 historical records, positive amounts, zero nulls, balanced target, and target leakage boundaries (Group A safe vs Group C leaky). Result: PASS.
+- Created `DATA_MODEL_EVALUATION.md` performing in-memory benchmark across Dummy, LogisticRegression, RandomForest, GradientBoosting with 5-Fold Stratified CV and GroupKFold customer-aware CV. Verdict: A. REALISTIC / HEALTHY.
+
+## Real ML Recovery Probability Model (Step 6)
+
+- Built reproducible ML training script `scripts/train_model.py` with `StandardScaler` + `OneHotEncoder` + `SimpleImputer` preprocessing pipeline and `LogisticRegression` classifier.
+- Trained on `data/historical_events.csv` using 12 approved Group A features without target leakage; achieved 60.60% holdout test accuracy, 0.6383 test ROC-AUC, 0.6345 F1, and 60.40% ± 1.41% 5-fold CV accuracy.
+- Serialized trained pipeline to `backend/models/recovery_model.joblib` and evaluation metrics to `backend/models/model_metrics.json`.
+- Built `app.agent.predictor.MLPredictor` service with model loading, feature transformation, inference, and linear coefficient feature explainability.
+- Integrated ML scoring into `app.agent.scoring` with transparent fallback to deterministic scoring if ML model is unavailable or disabled.
+- Added comprehensive ML test suite `backend/tests/test_ml_model.py` (11 tests); all 29 backend tests passing.
+- Next task set to P1 — Build recovery simulation engine (Step 7).
