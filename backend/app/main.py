@@ -2,13 +2,15 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
 
 from app.agent import recovery_agent
 from app.agent.detector import InvalidEventError, UnsupportedEventTypeError
 from app.agent.schemas import AnalysisResult, RecoveryEventInput
 from app.config import settings
-from app.database import init_db
+from app.database import get_db, init_db
+from app.simulation import RecoverySimulationResponse, simulation_engine
 
 
 @asynccontextmanager
@@ -40,3 +42,23 @@ def analyze_recovery(event: RecoveryEventInput) -> AnalysisResult:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except InvalidEventError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/recovery/simulate", response_model=RecoverySimulationResponse)
+def simulate_recovery(
+    event: RecoveryEventInput,
+    db: Session = Depends(get_db),
+) -> RecoverySimulationResponse:
+    """Run complete pipeline: detect → diagnose → score → choose strategy → simulate execution → observe outcome."""
+    try:
+        analysis = recovery_agent.analyze(event)
+        simulation_res = simulation_engine.execute(analysis, db=db)
+        return RecoverySimulationResponse(
+            analysis=analysis,
+            simulation=simulation_res,
+        )
+    except UnsupportedEventTypeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except InvalidEventError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+

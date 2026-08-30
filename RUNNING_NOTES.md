@@ -264,8 +264,35 @@ Created:
 - `backend/app/agent/predictor.py`
 - `backend/tests/test_ml_model.py`
 
+### Step 7 — Recovery Simulation Engine
+Completed by Antigravity.
+
+- Created modular sandbox simulation package in `backend/app/simulation/`:
+  - `schemas.py`: Pydantic definitions for `SimulationResult`, `SimulatedGatewayResult`, `SimulatedCommunicationResult`, and `RecoverySimulationResponse`.
+  - `gateway.py`: `SimulatedPaymentGateway` for safe, reproducible execution of `retry_now` and `retry_later`. Handles seeded deterministic RNG, context-aware success adjustments, and strict safety rules (e.g. `fraud_hold` and `account_closed` cannot be recovered via payment retry).
+  - `communication.py`: `SimulatedCommunicationService` providing deterministic templated messages for `send_checkout_reminder`, `send_subscription_update_request`, and `request_alternate_payment` (NO LLM yet — reserved for Step 8).
+  - `engine.py`: `RecoverySimulationEngine` coordinating strategy execution, financial invariant verification (`recovered_amount <= amount`), explainability generation, and optional SQLite persistence.
+  - `__init__.py`: Package export.
+- Handled all 7 recovery strategies: `retry_now`, `retry_later`, `request_alternate_payment`, `send_checkout_reminder`, `send_subscription_update_request`, `escalate_to_manual_review`, `do_nothing`.
+- Extended database persistence using existing SQLAlchemy models (`Customer`, `RecoveryCase`, `Event`, `Action`) to create an auditable record of every simulated run.
+- Added API endpoint `POST /recovery/simulate` while maintaining full backward-compatibility with `POST /recovery/analyze`.
+- Added test suite in `backend/tests/test_simulation.py` (12 tests covering each strategy, gateway, communication, invariants, persistence, and API).
+- Verification: Full backend test suite passing (41/41 tests green).
+
+Created:
+- `backend/app/simulation/__init__.py`
+- `backend/app/simulation/schemas.py`
+- `backend/app/simulation/gateway.py`
+- `backend/app/simulation/communication.py`
+- `backend/app/simulation/engine.py`
+- `backend/tests/test_simulation.py`
+
+Modified:
+- `backend/app/main.py`
+
 ## Current Status
 
+Step 7 (Recovery Simulation Engine): COMPLETE
 Step 6 (Real ML Recovery Probability Model): COMPLETE
 Synthetic Data ML Separability Audit: COMPLETE (A. REALISTIC / HEALTHY)
 Synthetic Data Validation: COMPLETE (PASS)
@@ -276,9 +303,10 @@ Current owner:
 Antigravity
 
 Next major task:
-P1 — Build recovery simulation engine (Step 7)
+P1 — Add LLM reasoning/message generation (Step 8)
 
 Do not start the next task automatically.
+
 
 ## Architecture We Are Following
 

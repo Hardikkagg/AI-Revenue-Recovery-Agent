@@ -63,3 +63,15 @@
 - Integrated ML scoring into `app.agent.scoring` with transparent fallback to deterministic scoring if ML model is unavailable or disabled.
 - Added comprehensive ML test suite `backend/tests/test_ml_model.py` (11 tests); all 29 backend tests passing.
 - Next task set to P1 — Build recovery simulation engine (Step 7).
+
+## Recovery Simulation Engine (Step 7)
+
+- Created sandbox simulation package in `backend/app/simulation/` (`schemas.py`, `gateway.py`, `communication.py`, `engine.py`, `__init__.py`).
+- Implemented `SimulatedPaymentGateway` with deterministic reproducible execution, support for immediate vs delayed retries, and strict hard-failure guards (fraud holds, closed accounts).
+- Implemented `SimulatedCommunicationService` providing deterministic template messages for checkout reminders, subscription updates, and alternate payment requests (NO LLM yet).
+- Supported all 7 recovery strategies (`retry_now`, `retry_later`, `request_alternate_payment`, `send_checkout_reminder`, `send_subscription_update_request`, `escalate_to_manual_review`, `do_nothing`).
+- Added full SQLite audit logging persisting `Customer`, `RecoveryCase`, `Event`, and `Action` records during simulation.
+- Added `POST /recovery/simulate` endpoint while preserving `POST /recovery/analyze` completely unchanged.
+- Added comprehensive test suite in `backend/tests/test_simulation.py` (12 tests); total backend tests increased from 29 to 41 passing (100% green).
+- Next task set to P1 — Add LLM reasoning/message generation (Step 8).
+
