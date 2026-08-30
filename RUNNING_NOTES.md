@@ -201,8 +201,42 @@ Updated:
 - `.agent/CHANGELOG.md`
 - `RUNNING_NOTES.md`
 
+### Synthetic Data Validation
+Completed by Antigravity before starting Step 6.
+
+- Audit Date: August 30, 2026
+- Dataset File: `data/historical_events.csv`
+- Dataset Size: 2,500 rows × 19 columns
+- Validation Result: PASS
+- Important Findings: 100% data integrity, 0 nulls, 0 duplicate event IDs, clean event-type constraints, balanced target (50.4% recovered / 49.6% unrecovered).
+- Leakage Findings: Mapped features into Group A (Safe), Group B (Excluded metadata/action), and Group C (Leaky post-outcome: `recovered_amount`, `recovery_time`).
+- Recommendation for Step 6: Proceed with training using 12 approved Group A features (`amount`, `payment_method`, `failure_reason`, `customer_age`, `account_age`, `previous_successes`, `previous_failures`, `retry_count`, `checkout_visits`, `cart_value`, `subscription_age`, `event_type`).
+
+Created:
+- `DATA_VALIDATION.md`
+
+### Synthetic Data ML Separability Audit
+Completed by Antigravity before starting Step 6.
+
+- Audit Date: August 30, 2026
+- Models Tested: `DummyClassifier`, `LogisticRegression`, `RandomForestClassifier`, `GradientBoostingClassifier`
+- Evaluation Results:
+  - `DummyClassifier`: Acc 50.40%, ROC-AUC 0.5000
+  - `LogisticRegression`: Test Acc 60.60%, Test ROC-AUC 0.6383, 5-Fold CV Acc 60.40% ± 1.41%, 5-Fold CV ROC-AUC 0.6389 ± 0.0230
+  - `RandomForestClassifier`: Test Acc 61.20%, Test ROC-AUC 0.6280, 5-Fold CV Acc 59.12% ± 2.01%
+  - `GradientBoostingClassifier`: Test Acc 60.60%, Test ROC-AUC 0.6204, 5-Fold CV Acc 59.00% ± 1.06%
+- Group-Aware Customer CV (`GroupKFold`): LogisticRegression achieved 60.04% ± 1.05% (delta < 0.4% vs random split), verifying zero customer contamination.
+- Leakage / Suspicious Performance Findings: No model reached $\ge 95\%$ or deterministic bounds. Dataset exhibits realistic irreducible noise from Bernoulli sampling in generator.
+- Realism Assessment & Final Verdict: **A. REALISTIC / HEALTHY**
+- Recommendation for Step 6: Use `LogisticRegression` with `StandardScaler` + `OneHotEncoder` on Group A features.
+
+Created:
+- `DATA_MODEL_EVALUATION.md`
+
 ## Current Status
 
+Synthetic Data ML Separability Audit: COMPLETE (A. REALISTIC / HEALTHY)
+Synthetic Data Validation: COMPLETE (PASS)
 Documentation (ARCHITECTURE.md & MODEL.txt): COMPLETE
 P1 — Build Recovery Agent analysis pipeline: COMPLETE
 
