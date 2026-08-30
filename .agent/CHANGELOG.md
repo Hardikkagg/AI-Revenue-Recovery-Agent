@@ -85,4 +85,17 @@
 - Added comprehensive test suite in `backend/tests/test_llm.py` (12 unit and integration tests); total backend tests increased from 41 to 53 passing (100% green).
 - Next task set to P1 — Add adaptive retry learning (Step 9).
 
+## Adaptive Learning & Feedback Loop (Step 9)
+
+- Started by Antigravity; finished and verified by Cursor (safe promotion gate, validation, predictor reload).
+- Updated `RecoverySimulationEngine._persist_simulation` to store all 12 Group A features plus decision context (`diagnosis`, `recovery_probability`, `selected_strategy`).
+- Created `backend/app/learning/` (`schemas.py`, `service.py`, `retrainer.py`, `__init__.py`).
+- `LearningService` validates feedback, rejects leaky/invalid records, and extracts Group A features + `recovered` only.
+- `ModelRetrainer` trains a candidate LogisticRegression, compares it to the current model, and promotes only if validation passes; otherwise the production model is retained.
+- `MLPredictor.reload` restores the previous in-memory model if a new file cannot be loaded.
+- Added `GET /recovery/metrics` and `POST /recovery/retrain` without changing `/recovery/analyze` or `/recovery/simulate` schemas.
+- Added `backend/tests/test_learning.py`; full backend suite: 64 passed.
+- Next task: P1 — Build frontend dashboard (Step 10). Do not start automatically.
+
+
 

@@ -10,6 +10,7 @@ from app.agent.detector import InvalidEventError, UnsupportedEventTypeError
 from app.agent.schemas import AnalysisResult, RecoveryEventInput
 from app.config import settings
 from app.database import get_db, init_db
+from app.learning import RecoveryMetricsResponse, RetrainResponse, learning_service, model_retrainer
 from app.simulation import RecoverySimulationResponse, simulation_engine
 
 
@@ -61,4 +62,20 @@ def simulate_recovery(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except InvalidEventError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/recovery/metrics", response_model=RecoveryMetricsResponse)
+def get_recovery_metrics(db: Session = Depends(get_db)) -> RecoveryMetricsResponse:
+    """Retrieve aggregated recovery metrics, revenue saved, and per-strategy win rates."""
+    return learning_service.get_metrics(db)
+
+
+@app.post("/recovery/retrain", response_model=RetrainResponse)
+def retrain_recovery_model(db: Session = Depends(get_db)) -> RetrainResponse:
+    """Trigger safe feedback-augmented model retrain using observed database records."""
+    try:
+        return model_retrainer.retrain(db)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Model retraining failed: {exc}") from exc
+
 

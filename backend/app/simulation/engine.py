@@ -290,21 +290,30 @@ class RecoverySimulationEngine:
         db.add(case)
         db.flush()
 
-        # 3. Create Event record
+        # 3. Create Event record with complete 12 Group A feature set
         ev = Event(
             recovery_case_id=case.id,
             event_type=event.event_type,
             details=json.dumps({
-                "payment_method": event.payment_method,
-                "failure_reason": event.failure_reason,
+                "amount": event.amount,
+                "customer_age": event.customer_age,
+                "account_age": event.account_age,
+                "previous_successes": event.previous_successes,
+                "previous_failures": event.previous_failures,
                 "retry_count": event.retry_count,
+                "checkout_visits": event.checkout_visits,
                 "cart_value": event.cart_value,
                 "subscription_age": event.subscription_age,
+                "payment_method": event.payment_method,
+                "failure_reason": event.failure_reason,
+                "event_type": event.event_type,
                 "diagnosis": analysis.diagnosis.model_dump(),
                 "recovery_probability": analysis.recovery_probability,
+                "selected_strategy": sim.strategy,
             }),
         )
         db.add(ev)
+
 
         # 4. Create Action record
         act = Action(

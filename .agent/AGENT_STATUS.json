@@ -1,9 +1,7 @@
 {
-  "active_agent": "antigravity",
+  "active_agent": "cursor",
   "status": "ready",
-  "task": "step-8-complete",
+  "task": "step-9-complete",
   "handoff_required": false,
   "checkpoint_required": false
 }
-
-

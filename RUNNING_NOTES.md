@@ -331,8 +331,44 @@ Modified:
 - `backend/app/agent/schemas.py`
 - `backend/app/agent/orchestrator.py`
 
+### Step 9 — Adaptive Learning / Feedback Loop
+Started by Antigravity, finished and verified by Cursor.
+
+Created:
+- `backend/app/learning/__init__.py`
+- `backend/app/learning/schemas.py`
+- `backend/app/learning/service.py`
+- `backend/app/learning/retrainer.py`
+- `backend/tests/test_learning.py`
+
+Modified:
+- `backend/app/simulation/engine.py` (persist 12 Group A features + decision context)
+- `backend/app/agent/predictor.py` (`reload()` keeps working model if load fails)
+- `backend/app/main.py` (`GET /recovery/metrics`, `POST /recovery/retrain`)
+- `.gitignore` (`backend/models/candidate_*.joblib`)
+
+Architecture:
+SIMULATION OUTCOME → FEEDBACK RECORD → VALIDATION → OPTIONAL CANDIDATE RETRAIN → EVALUATE → PROMOTE ONLY IF VALIDATION PASSES → PREDICTOR RELOAD
+
+Safety:
+- Training features are only the 12 Group A fields; `recovered` is the label.
+- Post-outcome fields (`recovered_amount`, `recovery_time`, `outcome`, identifiers, decision context) are not used as model inputs.
+- Invalid feedback is rejected (missing features, invalid recovered values, `recovered_amount` outside `[0, amount]`).
+- Candidate is not auto-promoted; current LogisticRegression stays active unless validation passes.
+
+APIs:
+- Preserved: `POST /recovery/analyze`, `POST /recovery/simulate`
+- Added: `GET /recovery/metrics`, `POST /recovery/retrain`
+
+Tests:
+`pytest -q` from `backend/` — **64 passed** (0 failed). Retrain tests are slow (~5-fold CV on the 2,500-row baseline).
+
+Git checkpoint:
+Not created in this step. The human owner will inspect and commit.
+
 ## Current Status
 
+Step 9 (Adaptive Learning / Feedback Loop): COMPLETE
 Step 8 (LLM Reasoning & Message Generation): COMPLETE
 Step 7 (Recovery Simulation Engine): COMPLETE
 Step 6 (Real ML Recovery Probability Model): COMPLETE
@@ -342,10 +378,10 @@ Documentation (ARCHITECTURE.md & MODEL.txt): COMPLETE
 P1 — Build Recovery Agent analysis pipeline: COMPLETE
 
 Current owner:
-Antigravity
+Cursor
 
 Next major task:
-P1 — Add adaptive retry learning (Step 9)
+P1 — Build frontend dashboard (Step 10)
 
 Do not start the next task automatically.
 

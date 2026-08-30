@@ -4,10 +4,10 @@ Project:
 AI Revenue Recovery Agent
 
 Status:
-LLM REASONING & MESSAGE GENERATION COMPLETE
+ADAPTIVE LEARNING & FEEDBACK LOOP COMPLETE
 
 Current Owner:
-Antigravity
+Cursor
 
 Completed:
 
@@ -28,30 +28,27 @@ Completed:
 - Dataset tests passing
 - Recovery agent analysis pipeline built and verified (detect → diagnose → score → choose strategy)
 - Added POST /recovery/analyze endpoint
-- All 18 automated backend tests passing
-- Created comprehensive system architecture documentation (`ARCHITECTURE.md`) with Mermaid diagrams
+- Created system architecture documentation (`ARCHITECTURE.md`)
 - Created complete system and operational model specification (`MODEL.txt`)
-- Completed comprehensive data quality, realism, and target leakage audit of synthetic dataset (`DATA_VALIDATION.md` — Result: PASS)
-- Completed ML separability and generalization audit (`DATA_MODEL_EVALUATION.md` — Verdict: A. REALISTIC / HEALTHY)
-- Built and trained supervised ML recovery probability model (`scripts/train_model.py`, `backend/models/recovery_model.joblib`)
-- Integrated ML predictor (`app.agent.predictor.MLPredictor`) with deterministic fallback into `app.agent.scoring`
-- Added comprehensive ML test suite (`backend/tests/test_ml_model.py`) — all 29 backend tests passing
-- Built safe sandbox recovery simulation engine (`backend/app/simulation/`) covering all 7 strategies
-- Built SimulatedPaymentGateway with deterministic reproducible execution and safety rules (no fraud/closed accounts)
-- Built SimulatedCommunicationService for templated checkout reminders, subscription updates, and alternate payment requests
-- Implemented outcome observation, explainability, and database persistence (Customer, RecoveryCase, Event, Action)
-- Added POST /recovery/simulate endpoint while preserving POST /recovery/analyze
-- Added comprehensive simulation test suite (`backend/tests/test_simulation.py`) — all 41 backend tests passing (100% green)
-- Built modular local LLM reasoning & message generation layer (`backend/app/llm/`) with local Ollama integration and deterministic template fallback
-- Enforced prompt safety constraints (LLM cannot change strategy, cannot fabricate financial outcomes, cannot leak raw ML scores)
-- Integrated LLM generation into `RecoveryAgent.analyze` pipeline, enriching `AnalysisResult.llm_generation`
-- Added comprehensive LLM test suite (`backend/tests/test_llm.py`) — all 53 backend tests passing (100% green)
+- Completed synthetic dataset quality and ML separability audits
+- Built and trained supervised ML recovery probability model
+- Integrated ML predictor with deterministic fallback
+- Built safe sandbox recovery simulation engine
+- Added POST /recovery/simulate endpoint
+- Built local LLM reasoning and customer message generation with fallback
+- Built adaptive learning / feedback loop (Step 9):
+  - Simulation outcomes persist Group A features plus decision context and post-outcome labels
+  - Invalid feedback is rejected (missing features, leaky/invalid labels, financial invariant)
+  - Candidate LogisticRegression is trained locally and promoted only if validation passes
+  - Predictor can reload a promoted model; failed reload keeps the working model or fallback
+  - GET /recovery/metrics and POST /recovery/retrain
+- Full backend test suite passing: 64 passed
 
 Current Work:
-None — Step 8 complete.
+None — Step 9 complete. Do not start Step 10 automatically.
 
 Next:
-P1 — Add adaptive retry learning (Step 9)
+P1 — Build frontend dashboard (Step 10)
 
 Important Architecture Decision:
 Cursor and Antigravity must never depend on their previous chat history.
@@ -68,5 +65,3 @@ AI Revenue Recovery Agent
 
 Product workflow:
 Detect → Diagnose → Score → Choose Strategy → LLM Reason/Communicate → Execute (Simulate) → Observe Outcome → Learn → Measure
-
-

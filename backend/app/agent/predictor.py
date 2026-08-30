@@ -1,4 +1,4 @@
-﻿"""Supervised ML predictor service for recovery probability scoring."""
+"""Supervised ML predictor service for recovery probability scoring."""
 
 from __future__ import annotations
 
@@ -84,6 +84,17 @@ class MLPredictor:
             logger.warning(f"Failed to load ML model from {target}: {exc}. Fallback mode active.")
             self._model = None
             return False
+
+    def reload(self, model_path: Path | str | None = None) -> bool:
+        """Reload the model pipeline from disk without dropping a working in-memory model."""
+        previous_model = self._model
+        previous_path = self._model_path
+        ok = self.load_model(model_path if model_path is not None else previous_path)
+        if ok:
+            return True
+        self._model = previous_model
+        self._model_path = previous_path
+        return False
 
     @property
     def is_available(self) -> bool:
