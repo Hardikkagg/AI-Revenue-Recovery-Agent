@@ -4,15 +4,19 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any
+import math
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 from sqlalchemy.orm import Session
 
 from app.agent.predictor import CATEGORICAL_FEATURES, NUMERICAL_FEATURES
-from app.agent.schemas import SUPPORTED_EVENT_TYPES
-from app.learning.schemas import RecoveryMetricsResponse, StrategyPerformance
+from app.agent.schemas import DetectedEvent, SUPPORTED_EVENT_TYPES
+from app.learning.schemas import LearningFeedback, RecoveryMetricsResponse, StrategyPerformance
 from app.models import Action, RecoveryCase
+
+if TYPE_CHECKING:
+    from app.simulation.schemas import SimulationResult
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +36,55 @@ LEAKAGE_FIELDS = {
     "event_id",
 }
 DECISION_CONTEXT_FIELDS = {"diagnosis", "recovery_probability", "selected_strategy"}
+
+
+def calculate_reward(amount_at_risk: float, recovered_amount: float) -> float:
+    """Return a bounded business reward using normalized recovered revenue."""
+    try:
+        amount = float(amount_at_risk)
+        recovered = float(recovered_amount)
+    except (TypeError, ValueError):
+        return 0.0
+
+    if not math.isfinite(amount) or not math.isfinite(recovered):
+        return 0.0
+    if amount <= 0:
+        return 0.0
+
+    normalized_recovered = max(0.0, recovered)
+    if normalized_recovered > amount:
+        normalized_recovered = amount
+
+    reward = normalized_recovered / amount
+    if reward < -1.0:
+        reward = -1.0
+    if reward > 1.0:
+        reward = 1.0
+    return round(float(reward), 6)
+
+
+def build_learning_feedback(
+    simulation: "SimulationResult",
+    event: DetectedEvent | None = None,
+) -> LearningFeedback:
+    """Create a validated learning observation from a completed simulated outcome."""
+    amount_at_risk = max(0.0, float(simulation.amount_at_risk))
+    recovered_amount = max(0.0, float(simulation.recovered_amount))
+    if amount_at_risk > 0 and recovered_amount > amount_at_risk:
+        recovered_amount = amount_at_risk
+
+    feedback = LearningFeedback(
+        simulation_id=simulation.simulation_id,
+        customer_id=getattr(event, "customer_id", None),
+        event_id=getattr(event, "event_id", None),
+        strategy=simulation.strategy,
+        amount_at_risk=amount_at_risk,
+        recovered=bool(simulation.recovered),
+        recovered_amount=recovered_amount,
+        reward=calculate_reward(amount_at_risk, recovered_amount),
+        outcome=simulation.outcome,
+    )
+    return feedback
 
 
 def _parse_recovered(value: Any) -> int | None:

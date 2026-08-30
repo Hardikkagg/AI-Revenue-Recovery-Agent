@@ -6,6 +6,20 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
+class LearningFeedback(BaseModel):
+    """One validated outcome observation for adaptive learning."""
+
+    simulation_id: str = Field(..., min_length=1)
+    customer_id: int | None = None
+    event_id: int | None = None
+    strategy: str = Field(..., min_length=1)
+    amount_at_risk: float = Field(ge=0.0)
+    recovered: bool = False
+    recovered_amount: float = Field(ge=0.0)
+    reward: float = Field(ge=-1.0, le=1.0)
+    outcome: str = Field(..., min_length=1)
+
+
 class StrategyPerformance(BaseModel):
     """Aggregated performance metrics for an individual recovery strategy."""
 

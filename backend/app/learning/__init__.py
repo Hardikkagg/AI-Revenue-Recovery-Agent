@@ -2,6 +2,7 @@
 
 from app.learning.retrainer import ModelRetrainer, model_retrainer
 from app.learning.schemas import (
+    LearningFeedback,
     RecoveryMetricsResponse,
     RetrainResponse,
     StrategyPerformance,
@@ -9,6 +10,7 @@ from app.learning.schemas import (
 from app.learning.service import LearningService, learning_service
 
 __all__ = [
+    "LearningFeedback",
     "LearningService",
     "ModelRetrainer",
     "RecoveryMetricsResponse",

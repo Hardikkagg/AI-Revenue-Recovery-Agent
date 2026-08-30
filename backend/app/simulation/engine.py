@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.agent.schemas import AnalysisResult, DetectedEvent
+from app.learning.service import build_learning_feedback
 from app.models import Action, Customer, Event, RecoveryCase
 from app.simulation.communication import SimulatedCommunicationService
 from app.simulation.gateway import SimulatedPaymentGateway
@@ -259,6 +260,11 @@ class RecoverySimulationEngine:
 
         return result
 
+    def create_learning_feedback(self, analysis: AnalysisResult, sim: SimulationResult) -> dict[str, Any]:
+        """Create a validated post-execution learning observation for the completed simulation."""
+        feedback = build_learning_feedback(sim, analysis.event)
+        return feedback.model_dump(mode="json")
+
     def _persist_simulation(
         self,
         db: Session,
@@ -316,6 +322,7 @@ class RecoverySimulationEngine:
 
 
         # 4. Create Action record
+        learning_feedback = build_learning_feedback(sim, event)
         act = Action(
             recovery_case_id=case.id,
             action_type=sim.strategy,
@@ -325,8 +332,14 @@ class RecoverySimulationEngine:
                 "outcome": sim.outcome,
                 "recovered": sim.recovered,
                 "recovered_amount": sim.recovered_amount,
+                "amount_at_risk": sim.amount_at_risk,
+                "reward": learning_feedback.reward,
+                "strategy": sim.strategy,
+                "customer_id": event.customer_id,
+                "event_id": event.event_id,
                 "explanation": sim.explanation,
                 "action_details": sim.action_details,
+                "learning_feedback": learning_feedback.model_dump(mode="json"),
             }),
         )
         db.add(act)

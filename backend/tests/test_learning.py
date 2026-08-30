@@ -14,7 +14,14 @@ from app.agent.predictor import CATEGORICAL_FEATURES, NUMERICAL_FEATURES, MLPred
 from app.agent.schemas import RecoveryEventInput
 from app.database import Base, engine, get_db
 from app.learning.retrainer import ModelRetrainer
-from app.learning.service import LEAKAGE_FIELDS, LearningService, validate_feedback_record
+from app.learning.schemas import LearningFeedback
+from app.learning.service import (
+    LEAKAGE_FIELDS,
+    LearningService,
+    build_learning_feedback,
+    calculate_reward,
+    validate_feedback_record,
+)
 from app.main import app
 from app.models import Action, Customer, Event, RecoveryCase
 from app.simulation.engine import RecoverySimulationEngine
@@ -133,6 +140,53 @@ def test_extract_feedback_dataframe_has_zero_target_leakage(clean_db):
 
     for col in list(LEAKAGE_FIELDS) + ["diagnosis", "recovery_probability", "selected_strategy"]:
         assert col not in df.columns
+
+
+def test_calculate_reward_full_partial_failed_and_zero_amount():
+    assert calculate_reward(100.0, 100.0) == 1.0
+    assert calculate_reward(100.0, 40.0) == 0.4
+    assert calculate_reward(100.0, 0.0) == 0.0
+    assert calculate_reward(0.0, 50.0) == 0.0
+    assert calculate_reward(100.0, -10.0) == 0.0
+
+
+def test_calculate_reward_clamps_excess_recovered_amount():
+    assert calculate_reward(100.0, 150.0) == 1.0
+
+
+def test_build_learning_feedback_contains_strategy_and_outcome():
+    analysis = recovery_agent.analyze(_payment_event(720, failure_reason="network_error"))
+    sim = RecoverySimulationEngine().execute(analysis)
+    feedback = build_learning_feedback(sim, analysis.event)
+
+    assert isinstance(feedback, LearningFeedback)
+    assert feedback.strategy == analysis.recommended_strategy
+    assert feedback.outcome == sim.outcome
+    assert feedback.simulation_id == sim.simulation_id
+    assert feedback.reward == calculate_reward(sim.amount_at_risk, sim.recovered_amount)
+    assert feedback.amount_at_risk == sim.amount_at_risk
+    assert feedback.customer_id == analysis.event.customer_id
+    assert feedback.event_id == analysis.event.event_id
+
+
+def test_learning_feedback_is_not_in_ml_feature_set(clean_db):
+    engine_sim = RecoverySimulationEngine()
+    analysis = recovery_agent.analyze(_payment_event(730, failure_reason="network_error"))
+    engine_sim.execute(analysis, db=clean_db)
+
+    recorded = clean_db.query(Action).first()
+    assert recorded is not None
+    payload = json.loads(recorded.details)
+    assert "learning_feedback" in payload
+    assert payload["learning_feedback"]["outcome"] == payload["outcome"]
+    assert "reward" in payload["learning_feedback"]
+    assert "recovered_amount" in payload
+
+    df = LearningService().extract_feedback_dataframe(clean_db)
+    assert set(df.columns) == set(GROUP_A_FEATURES + ["recovered"])
+    assert "reward" not in df.columns
+    assert "outcome" not in df.columns
+    assert "strategy" not in df.columns
 
 
 def test_feedback_validation_rejects_invalid_records():
