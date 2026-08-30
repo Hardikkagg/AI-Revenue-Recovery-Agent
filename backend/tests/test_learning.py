@@ -13,6 +13,7 @@ from app.agent.orchestrator import recovery_agent
 from app.agent.predictor import CATEGORICAL_FEATURES, NUMERICAL_FEATURES, MLPredictor, ml_predictor
 from app.agent.schemas import RecoveryEventInput
 from app.database import Base, engine, get_db
+from app.learning.policy import AdaptiveStrategyPolicy
 from app.learning.retrainer import ModelRetrainer
 from app.learning.schemas import LearningFeedback
 from app.learning.service import (
@@ -384,3 +385,136 @@ def test_api_retrain_endpoint_does_not_require_breaking_existing_schemas(client,
     assert "holdout_metrics" in data
     assert "cross_validation_5fold" in data
     ml_predictor.reload()
+
+
+def test_adaptive_policy_returns_valid_strategy():
+    policy = AdaptiveStrategyPolicy(seed=7)
+    allowed = ["retry_later", "request_alternate_payment"]
+    selected = policy.select_strategy(
+        context={
+            "event_type": "payment_failure",
+            "diagnosis_code": "temporary_payment_issue",
+            "payment_method": "card",
+            "probability_bucket": "medium",
+            "retry_bucket": "low",
+        },
+        allowed_strategies=allowed,
+        deterministic_strategy="retry_later",
+    )
+    assert selected in allowed
+
+
+def test_adaptive_policy_only_selects_allowed_strategies():
+    policy = AdaptiveStrategyPolicy(seed=11)
+    selected = policy.select_strategy(
+        context={
+            "event_type": "payment_failure",
+            "diagnosis_code": "insufficient_funds",
+            "payment_method": "card",
+            "probability_bucket": "low",
+            "retry_bucket": "medium",
+        },
+        allowed_strategies=["retry_later"],
+        deterministic_strategy="retry_later",
+    )
+    assert selected == "retry_later"
+
+
+def test_adaptive_policy_uses_deterministic_fallback_without_history():
+    policy = AdaptiveStrategyPolicy(seed=13)
+    selected = policy.select_strategy(
+        context={
+            "event_type": "checkout_abandonment",
+            "diagnosis_code": "recoverable",
+            "payment_method": "card",
+            "probability_bucket": "high",
+            "retry_bucket": "low",
+        },
+        allowed_strategies=["send_checkout_reminder", "do_nothing"],
+        deterministic_strategy="send_checkout_reminder",
+    )
+    assert selected == "send_checkout_reminder"
+
+
+def test_adaptive_policy_exploits_favoring_strategy():
+    policy = AdaptiveStrategyPolicy(seed=17, epsilon=0.0)
+    context = {
+        "event_type": "payment_failure",
+        "diagnosis_code": "temporary_payment_issue",
+        "payment_method": "card",
+        "probability_bucket": "medium",
+        "retry_bucket": "low",
+    }
+    policy.update_from_feedback(
+        context=context,
+        strategy="request_alternate_payment",
+        reward=1.0,
+    )
+    policy.update_from_feedback(
+        context=context,
+        strategy="request_alternate_payment",
+        reward=0.9,
+    )
+    policy.update_from_feedback(
+        context=context,
+        strategy="retry_later",
+        reward=0.1,
+    )
+    selected = policy.select_strategy(
+        context=context,
+        allowed_strategies=["retry_later", "request_alternate_payment"],
+        deterministic_strategy="retry_later",
+    )
+    assert selected == "request_alternate_payment"
+
+
+def test_adaptive_policy_epsilon_exploration_is_seeded_and_reproducible():
+    policy = AdaptiveStrategyPolicy(seed=29, epsilon=1.0)
+    results = [
+        policy.select_strategy(
+            context={
+                "event_type": "payment_failure",
+                "diagnosis_code": "temporary_payment_issue",
+                "payment_method": "card",
+                "probability_bucket": "medium",
+                "retry_bucket": "low",
+            },
+            allowed_strategies=["retry_later", "request_alternate_payment"],
+            deterministic_strategy="retry_later",
+        )
+        for _ in range(5)
+    ]
+    policy2 = AdaptiveStrategyPolicy(seed=29, epsilon=1.0)
+    results2 = [
+        policy2.select_strategy(
+            context={
+                "event_type": "payment_failure",
+                "diagnosis_code": "temporary_payment_issue",
+                "payment_method": "card",
+                "probability_bucket": "medium",
+                "retry_bucket": "low",
+            },
+            allowed_strategies=["retry_later", "request_alternate_payment"],
+            deterministic_strategy="retry_later",
+        )
+        for _ in range(5)
+    ]
+    assert results == results2
+
+
+def test_adaptive_policy_ignores_post_outcome_fields_in_context():
+    policy = AdaptiveStrategyPolicy(seed=31)
+    context_a = {
+        "event_type": "payment_failure",
+        "diagnosis_code": "temporary_payment_issue",
+        "payment_method": "card",
+        "probability_bucket": "medium",
+        "retry_bucket": "low",
+    }
+    context_b = {
+        **context_a,
+        "outcome": "payment_recovered",
+        "reward": 1.0,
+        "recovered_amount": 100.0,
+    }
+    assert policy.build_context_key(context_a) == policy.build_context_key(context_b)
