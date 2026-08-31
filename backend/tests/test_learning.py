@@ -518,3 +518,27 @@ def test_adaptive_policy_ignores_post_outcome_fields_in_context():
         "recovered_amount": 100.0,
     }
     assert policy.build_context_key(context_a) == policy.build_context_key(context_b)
+
+
+def test_simulation_updates_adaptive_policy_after_outcome():
+    from app.simulation import engine as sim_engine_module
+
+    policy = AdaptiveStrategyPolicy(seed=77, epsilon=0.0)
+    with patch.object(sim_engine_module, "adaptive_policy", policy):
+        analysis = recovery_agent.analyze(_payment_event(910, failure_reason="network_error"))
+        sim = sim_engine_module.simulation_engine.execute(analysis)
+
+        context = {
+            "event_type": analysis.event.event_type,
+            "diagnosis_code": analysis.diagnosis.diagnosis_code,
+            "payment_method": analysis.event.payment_method,
+            "probability_bucket": (
+                "low" if analysis.recovery_probability < 0.35 else "medium" if analysis.recovery_probability < 0.60 else "high"
+            ),
+            "retry_bucket": (
+                "low" if analysis.event.retry_count <= 1 else "medium" if analysis.event.retry_count <= 3 else "high"
+            ),
+        }
+
+        assert sim.strategy in policy._stats.get(policy.build_context_key(context), {})
+        assert policy.get_strategy_reward(context, sim.strategy) >= 0.0

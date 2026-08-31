@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.agent.schemas import AnalysisResult, DetectedEvent
+from app.learning.policy import adaptive_policy
 from app.learning.service import build_learning_feedback
 from app.models import Action, Customer, Event, RecoveryCase
 from app.simulation.communication import SimulatedCommunicationService
@@ -253,6 +254,16 @@ class RecoverySimulationEngine:
             gateway_result=gateway_res,
             communication_result=comm_res,
         )
+
+        feedback = build_learning_feedback(result, event)
+        context = {
+            "event_type": event.event_type,
+            "diagnosis_code": analysis.diagnosis.diagnosis_code,
+            "payment_method": event.payment_method,
+            "probability_bucket": ("low" if analysis.recovery_probability < 0.35 else "medium" if analysis.recovery_probability < 0.60 else "high"),
+            "retry_bucket": ("low" if event.retry_count <= 1 else "medium" if event.retry_count <= 3 else "high"),
+        }
+        adaptive_policy.update_from_feedback(context, result.strategy, feedback.reward)
 
         # Optional DB persistence
         if db is not None:
