@@ -70,7 +70,7 @@ export function useRecoveryFlow() {
   const [pipelineStage, setPipelineStage] = useState<PipelineStage | null>(null)
   const [loading, setLoading] = useState<'idle' | 'analyzing' | 'simulating'>('idle')
   const [error, setError] = useState<string | null>(null)
-  const [backendAvailable, setBackendAvailable] = useState<boolean>(true)
+  const [backendAvailable, setBackendAvailable] = useState<boolean | null>(null)
 
   const applyScenario = useCallback((scenarioName: keyof typeof scenarioPresets) => {
     const next = scenarioPresets[scenarioName]

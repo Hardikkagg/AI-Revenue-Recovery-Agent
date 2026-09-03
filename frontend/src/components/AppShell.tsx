@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle, Gauge, Layers3, Sparkles, TrendingUp } from 'lucide-react'
 
 import { useRecoveryFlow } from '../features/recovery/hooks/useRecoveryFlow'
 import { KPIBar } from './KPIBar'
 import { RecoveryCommandCenter } from './RecoveryCommandCenter'
+import { SecondaryViews, type WorkspaceView } from './SecondaryViews'
 import { Sidebar } from './Sidebar'
 import { TopHeader } from './TopHeader'
 import { Button } from './ui/Button'
@@ -19,6 +21,7 @@ function formatCurrency(value: number | null | undefined) {
 }
 
 export function AppShell() {
+  const [activeView, setActiveView] = useState<WorkspaceView>('Recovery Operations')
   const {
     backendAvailable,
     metrics,
@@ -41,15 +44,17 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-[#0A0B0D] text-slate-100">
       <div className="mx-auto flex min-h-screen max-w-[1600px] border-x border-[#2D3139] bg-[#0A0B0D]">
-        <Sidebar />
+        <Sidebar activeView={activeView} onNavigate={setActiveView} backendAvailable={backendAvailable} />
 
         <main className="flex-1 px-6 pb-8 pt-5 lg:px-8">
           <TopHeader backendAvailable={backendAvailable} hasAnalysis={Boolean(analysis)} hasSimulation={Boolean(simulation)} />
 
-          <div className="mt-6 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-4">
-              <KPIBar metrics={metrics} />
-              <RecoveryCommandCenter
+          <div className="mt-6">
+            {activeView === 'Recovery Operations' ? (
+              <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+                <div className="space-y-4">
+                  <KPIBar metrics={metrics} />
+                  <RecoveryCommandCenter
                 backendAvailable={backendAvailable}
                 analysis={analysis}
                 simulation={simulation}
@@ -63,10 +68,10 @@ export function AppShell() {
                 loading={loading}
                 error={error}
                 rewardRatio={rewardRatio}
-              />
-            </div>
+                  />
+                </div>
 
-            <motion.aside
+                <motion.aside
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
@@ -125,10 +130,14 @@ export function AppShell() {
                   </div>
                 </div>
               </div>
-            </motion.aside>
+                </motion.aside>
+              </div>
+            ) : (
+              <SecondaryViews view={activeView} metrics={metrics} analysis={analysis} simulation={simulation} rewardRatio={rewardRatio} onOpenRecovery={() => setActiveView('Recovery Operations')} />
+            )}
           </div>
 
-          <div className="mt-6">
+          {activeView === 'Recovery Operations' && <div className="mt-6">
             <Panel title="Strategy Performance" subtitle="Live results from GET /recovery/metrics" className="p-5">
               {strategyBreakdown.length === 0 ? (
                 <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-8 text-center text-sm text-[#908FA0]">
@@ -161,9 +170,9 @@ export function AppShell() {
                 </div>
               )}
             </Panel>
-          </div>
+          </div>}
 
-          {!backendAvailable && (
+          {activeView === 'Recovery Operations' && backendAvailable === false && (
             <div className="mt-6 rounded-3xl border border-red-500/30 bg-red-500/10 p-5">
               <div className="flex items-center gap-3 text-red-200">
                 <AlertTriangle className="h-5 w-5" />
@@ -178,7 +187,7 @@ export function AppShell() {
             </div>
           )}
 
-          {error && backendAvailable === false && (
+          {activeView === 'Recovery Operations' && error && backendAvailable === false && (
             <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>
           )}
         </main>

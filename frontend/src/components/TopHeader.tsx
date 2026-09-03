@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Bell, CircleHelp, Search } from 'lucide-react'
 
 interface TopHeaderProps {
-  backendAvailable: boolean
+  backendAvailable: boolean | null
   hasAnalysis: boolean
   hasSimulation: boolean
 }
@@ -10,8 +10,8 @@ interface TopHeaderProps {
 export function TopHeader({ backendAvailable, hasAnalysis, hasSimulation }: TopHeaderProps) {
   const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   const statuses = [
-    backendAvailable && 'RECOVERY ENGINE ONLINE',
-    backendAvailable && 'API CONNECTED',
+    backendAvailable === true && 'RECOVERY ENGINE ONLINE',
+    backendAvailable === true && 'API CONNECTED',
     hasAnalysis || hasSimulation ? 'ADAPTIVE POLICY ACTIVE' : null,
   ].filter(Boolean) as string[]
 
@@ -38,8 +38,8 @@ export function TopHeader({ backendAvailable, hasAnalysis, hasSimulation }: TopH
 
         <div className="flex flex-wrap items-center justify-end gap-2 text-[10px] uppercase tracking-[0.12em] text-slate-300">
           <span className="ops-chip">Environment: Production</span>
-          <button className="rounded p-2 text-[#C7C4D7] hover:bg-[#1C1F26] hover:text-indigo-300" aria-label="Notifications" type="button"><Bell className="h-4 w-4" /></button>
-          <button className="rounded p-2 text-[#C7C4D7] hover:bg-[#1C1F26] hover:text-indigo-300" aria-label="Help" type="button"><CircleHelp className="h-4 w-4" /></button>
+          <button className="cursor-not-allowed rounded p-2 text-[#908FA0] opacity-60" aria-label="Notifications unavailable" title="Notifications are not configured" type="button" disabled><Bell className="h-4 w-4" /></button>
+          <button className="cursor-not-allowed rounded p-2 text-[#908FA0] opacity-60" aria-label="Help unavailable" title="Help is not configured" type="button" disabled><CircleHelp className="h-4 w-4" /></button>
           <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#2D3139] bg-[#1C1F26] font-mono text-[10px] text-indigo-200" aria-label="Revenue operations user">RO</div>
         </div>
       </div>
@@ -51,9 +51,9 @@ export function TopHeader({ backendAvailable, hasAnalysis, hasSimulation }: TopH
             {status}
           </span>
         ))}
-        <span className={`ops-chip ${backendAvailable ? 'border-emerald-500/30 text-emerald-200' : 'border-red-500/30 text-red-300'}`}>
-          <span className={`h-2 w-2 rounded-full ${backendAvailable ? 'bg-emerald-400' : 'bg-red-400'}`} />
-          API {backendAvailable ? 'Connected' : 'Offline'}
+          <span className={`ops-chip ${backendAvailable === true ? 'border-emerald-500/30 text-emerald-200' : backendAvailable === false ? 'border-red-500/30 text-red-300' : 'border-[#2D3139] text-[#908FA0]'}`}>
+            <span className={`h-2 w-2 rounded-full ${backendAvailable === true ? 'bg-emerald-400' : backendAvailable === false ? 'bg-red-400' : 'bg-[#908FA0]'}`} />
+            API {backendAvailable === true ? 'Connected' : backendAvailable === false ? 'Offline' : 'Checking'}
         </span>
         <span className="ml-auto text-[#908FA0]">Session {timestamp}</span>
       </div>

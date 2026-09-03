@@ -29,7 +29,7 @@ const pipelineStages = ['DETECT', 'DIAGNOSE', 'SCORE', 'STRATEGY', 'EXECUTE', 'O
 type PipelineStage = (typeof pipelineStages)[number] | 'OUTCOME'
 
 interface RecoveryCommandCenterProps {
-  backendAvailable: boolean
+  backendAvailable: boolean | null
   analysis: AnalysisResult | null
   simulation: RecoverySimulationResponse | null
   form: RecoveryEventInput
@@ -238,10 +238,10 @@ export function RecoveryCommandCenter({
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button type="button" onClick={() => void onAnalyze()} disabled={!backendAvailable || loading !== 'idle'}>
+              <Button type="button" onClick={() => void onAnalyze()} disabled={backendAvailable !== true || loading !== 'idle'}>
                 {loading === 'analyzing' ? 'Analyzing…' : 'Analyze Recovery'}
               </Button>
-              <Button type="button" variant="secondary" onClick={() => void onRefresh()} disabled={!backendAvailable}>
+              <Button type="button" variant="secondary" onClick={() => void onRefresh()} disabled={backendAvailable !== true}>
                 Refresh Metrics
               </Button>
             </div>
@@ -388,7 +388,7 @@ export function RecoveryCommandCenter({
                 type="button"
                 className="w-full"
                 onClick={() => void onSimulate()}
-                disabled={!analysis || !backendAvailable || loading !== 'idle' || isBlocked}
+                disabled={!analysis || backendAvailable !== true || loading !== 'idle' || isBlocked}
               >
                 {loading === 'simulating' ? 'Executing...' : isBlocked ? 'Automation blocked' : 'Execute Recovery'}
               </Button>
