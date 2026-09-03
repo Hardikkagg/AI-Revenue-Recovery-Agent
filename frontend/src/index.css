@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, 'Segoe UI', sans-serif;
+  font-family: 'Aptos', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #e2e8f0;
-  background: #0a0b0d;
+  color: #1f2937;
+  background: #f4f6f8;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color-scheme: dark;
-  --bg-deep: #0a0b0d;
-  --bg-surface: #14161a;
-  --bg-surface-high: #1c1f26;
-  --panel-border: #2d3139;
-  --primary-ai: #6366f1;
-  --success: #10b981;
-  --danger: #ef4444;
+  color-scheme: light;
+  --bg-deep: #f4f6f8;
+  --bg-surface: #ffffff;
+  --bg-surface-high: #f8fafc;
+  --panel-border: #d9e0e7;
+  --primary-ai: #2563eb;
+  --success: #16803c;
+  --danger: #b42318;
 }
 
 html {
@@ -31,7 +31,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #0a0b0d;
+  background: var(--bg-deep);
 }
 
 * {
@@ -58,16 +58,41 @@ button {
 
 @layer components {
   .panel-surface {
-    @apply rounded-lg border border-[#2D3139] bg-[#14161A];
+    @apply border border-[#D9E0E7] bg-white;
   }
 
   .ops-chip {
-    @apply inline-flex items-center gap-2 rounded border border-[#2D3139] bg-[#1C1F26] px-2.5 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-slate-200;
-  }
-
-  .ops-grid {
-    background-image: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-    background-size: 26px 26px;
+    @apply inline-flex items-center gap-2 border border-[#D9E0E7] bg-[#F8FAFC] px-2.5 py-1.5 text-[11px] font-medium text-[#475569];
   }
 }
+
+/* Keep the existing view structure, but remove the former dark template treatment. */
+.font-mono {
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
+[class~="bg-[#0A0B0D]"] { background-color: #f8fafc; }
+[class~="bg-[#14161A]"] { background-color: #ffffff; }
+[class~="bg-[#1C1F26]"] { background-color: #f1f5f9; }
+[class~="border-[#2D3139]"] { border-color: #d9e0e7; }
+[class~="text-[#C7C4D7]"] { color: #475569; }
+[class~="text-[#908FA0]"] { color: #64748b; }
+[class~="text-slate-100"] { color: #334155; }
+[class~="text-slate-200"] { color: #475569; }
+[class~="text-slate-300"] { color: #64748b; }
+[class~="text-slate-400"] { color: #64748b; }
+[class~="text-slate-50"] { color: #172033; }
+[class~="border-indigo-400"] { border-color: #2563eb; }
+[class~="text-indigo-200"] { color: #1d4ed8; }
+[class~="text-indigo-300"] { color: #2563eb; }
+[class~="bg-indigo-500\/10"] { background-color: #eff6ff; }
+[class~="bg-emerald-500\/10"] { background-color: #ecfdf3; }
+[class~="text-emerald-300"] { color: #16803c; }
+[class~="text-emerald-200"] { color: #166534; }
+[class~="text-red-200"] { color: #b42318; }
+[class~="text-red-300"] { color: #b42318; }
+[class~="bg-red-500\/10"] { background-color: #fef3f2; }
+[class~="rounded-2xl"] { border-radius: 6px; }
+[class~="rounded-3xl"] { border-radius: 6px; }
 

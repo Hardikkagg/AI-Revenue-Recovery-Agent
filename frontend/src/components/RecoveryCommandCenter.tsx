@@ -1,17 +1,12 @@
 import { motion } from 'framer-motion'
 import {
-  AlertTriangle,
   Bot,
   BrainCircuit,
-  Check,
-  CircleDashed,
   CreditCard,
   Gauge,
-  LoaderCircle,
   ShieldAlert,
   ShoppingCart,
   Sparkles,
-  Workflow,
 } from 'lucide-react'
 
 import type {
@@ -24,9 +19,14 @@ import { Button } from './ui/Button'
 import { Panel } from './ui/Panel'
 import { StatusBadge } from './ui/StatusBadge'
 
-const pipelineStages = ['DETECT', 'DIAGNOSE', 'SCORE', 'STRATEGY', 'EXECUTE', 'OBSERVE', 'LEARN'] as const
+const workflowStages = [
+  { name: 'Case identified', description: 'Event details are ready for review.' },
+  { name: 'Recommendation ready', description: 'A recovery action is available.' },
+  { name: 'Action pending', description: 'Waiting for an approved execution.' },
+  { name: 'Outcome', description: 'Execution results are recorded here.' },
+] as const
 
-type PipelineStage = (typeof pipelineStages)[number] | 'OUTCOME'
+type PipelineStage = 'DETECT' | 'DIAGNOSE' | 'SCORE' | 'STRATEGY' | 'EXECUTE' | 'OUTCOME' | 'LEARN'
 
 interface RecoveryCommandCenterProps {
   backendAvailable: boolean | null
@@ -67,87 +67,48 @@ export function RecoveryCommandCenter({
   onAnalyze,
   onSimulate,
   onRefresh,
-  pipelineStage,
   loading,
   error,
   rewardRatio,
 }: RecoveryCommandCenterProps) {
-  const activeStage = pipelineStage === 'OUTCOME' ? 'OBSERVE' : pipelineStage ?? 'DETECT'
-  const activeIndex = pipelineStages.indexOf(activeStage)
   const probability = analysis ? Math.round(analysis.recovery_probability * 100) : 0
   const isBlocked = analysis?.recommended_strategy === 'escalate_to_manual_review'
   const safeTone = analysis?.recommended_strategy === 'escalate_to_manual_review' ? 'danger' : 'safe'
   const safeLabel = analysis?.recommended_strategy === 'escalate_to_manual_review' ? 'MANUAL REVIEW' : 'SAFE TO AUTOMATE'
-
-  const pipeline = pipelineStages.map((stage, index) => {
-    const isCurrent = activeIndex === index
-    const isComplete = activeIndex > index || (index === pipelineStages.length - 1 && Boolean(simulation))
-    const isBlockedStage = isBlocked && stage === 'STRATEGY'
-
-    return {
-      name: stage,
-      description: {
-        DETECT: 'Event identified',
-        DIAGNOSE: 'Failure cause understood',
-        SCORE: 'Recovery likelihood estimated',
-        STRATEGY: isBlockedStage ? 'Safety policy blocked automation' : 'Safest action selected',
-        EXECUTE: 'Sandbox execution',
-        OBSERVE: 'Outcome measured',
-        LEARN: 'Policy feedback recorded',
-      }[stage],
-      status: isBlockedStage ? 'blocked' : isComplete ? 'complete' : isCurrent ? 'active' : 'pending',
-    }
-  })
+  const currentWorkflowIndex = simulation ? 3 : analysis ? 1 : 0
 
   return (
     <div className="space-y-4">
-      <Panel title="Decision Pipeline" subtitle="Detect → diagnose → score → strategy → execute → observe → learn" className="p-5">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[#908FA0]">
-            <Workflow className="h-4 w-4 text-indigo-300" />
-            Live case lifecycle
-          </div>
+      <Panel title="Case status" subtitle="The current position of this recovery case." className="p-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="text-sm text-[#64748B]">Operational workflow</div>
           <StatusBadge label={safeLabel} tone={analysis ? (safeTone as 'safe' | 'danger') : 'neutral'} />
         </div>
 
-        <div className="relative grid gap-2 md:grid-cols-7">
-          <div className="absolute left-[7%] right-[7%] top-5 hidden h-px bg-[#2D3139] md:block" />
-          {pipeline.map((step, index) => (
-            <motion.div
-              key={step.name}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.25 }}
-              className={`relative z-10 min-w-0 border-l-2 bg-[#14161A] px-2.5 py-2.5 transition-colors duration-300 ${
-                step.status === 'complete'
-                  ? 'border-emerald-500/70'
-                  : step.status === 'active'
-                    ? 'border-indigo-400 bg-[#1C1F26]'
-                    : step.status === 'blocked'
-                      ? 'border-red-500/70 bg-red-500/5'
-                      : 'border-[#2D3139]'
-              }`}
-            >
-              <div className="mb-2 flex items-center justify-between font-mono text-[10px] text-[#908FA0]">
-                <span>0{index + 1}</span>
-                {step.status === 'complete' ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : step.status === 'active' ? <LoaderCircle className="h-3.5 w-3.5 text-indigo-300" /> : step.status === 'blocked' ? <ShieldAlert className="h-3.5 w-3.5 text-red-300" /> : <CircleDashed className="h-3.5 w-3.5 text-[#908FA0]" />}
+        <div className="grid border-y border-[#D9E0E7] md:grid-cols-4">
+          {workflowStages.map((step, index) => {
+            const isCurrent = currentWorkflowIndex === index
+            const isComplete = currentWorkflowIndex > index
+            const isBlockedStep = isBlocked && index === 2
+            return (
+              <div key={step.name} className={`border-b border-[#D9E0E7] px-3 py-3 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0 ${isCurrent ? 'bg-[#EFF6FF]' : ''}`}>
+                <div className="flex items-center gap-2 text-sm font-medium text-[#172033]">
+                  <span className={`h-2 w-2 rounded-full ${isBlockedStep ? 'bg-red-500' : isComplete ? 'bg-emerald-500' : isCurrent ? 'bg-[#2563EB]' : 'bg-[#CBD5E1]'}`} />
+                  {step.name}
+                </div>
+                <div className="mt-1 text-xs leading-4 text-[#64748B]">{isBlockedStep ? 'Safety policy requires manual review.' : step.description}</div>
               </div>
-              <div className={`font-mono text-[10px] font-medium uppercase tracking-[0.12em] ${step.status === 'complete' ? 'text-emerald-300' : step.status === 'active' ? 'text-indigo-200' : step.status === 'blocked' ? 'text-red-300' : 'text-[#908FA0]'}`}>{step.name}</div>
-              <div className="mt-2 min-h-9 text-xs leading-4 text-[#C7C4D7]">{step.description}</div>
-              <div className={`mt-2 font-mono text-[9px] uppercase tracking-[0.12em] ${step.status === 'complete' ? 'text-emerald-400/70' : step.status === 'active' ? 'text-indigo-300' : step.status === 'blocked' ? 'text-red-300' : 'text-[#908FA0]'}`}>
-                {step.status === 'complete' ? 'Completed' : step.status === 'active' ? 'Active' : step.status === 'blocked' ? 'Blocked' : 'Pending'}
-              </div>
-            </motion.div>
-          ))}
+            )
+          })}
         </div>
       </Panel>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <Panel title="Recovery Event" subtitle="Feed a failed-revenue event into the recovery engine." className="p-5">
-          <div className="space-y-5">
+        <Panel title="Case details" subtitle="Review the failed-revenue event before analysis." className="p-4">
+          <div className="space-y-4">
             <div className="space-y-2">
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#908FA0]">Scenario presets</div>
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="text-xs font-medium text-[#64748B]">Case type</div>
+              <div className="grid gap-2 md:grid-cols-3">
                 {[
                   { key: 'paymentFailure', label: 'Payment Failure', icon: CreditCard, description: 'Network error', preset: scenarioPresets.paymentFailure },
                   { key: 'checkoutAbandonment', label: 'Checkout Abandonment', icon: ShoppingCart, description: 'Cart hesitation', preset: scenarioPresets.checkoutAbandonment },
@@ -156,16 +117,15 @@ export function RecoveryCommandCenter({
                   <button
                     key={scenario.key}
                     type="button"
-                    className={`group rounded border p-3 text-left transition-colors duration-200 ${form.event_type === scenario.preset.event_type && form.failure_reason === scenario.preset.failure_reason ? 'border-indigo-400 bg-indigo-500/10' : 'border-[#2D3139] bg-[#0A0B0D] hover:border-indigo-400/50 hover:bg-[#1C1F26]'}`}
+                    className={`group rounded-md border px-3 py-2 text-left transition-colors duration-200 ${form.event_type === scenario.preset.event_type && form.failure_reason === scenario.preset.failure_reason ? 'border-indigo-400 bg-indigo-500/10' : 'border-[#2D3139] bg-[#0A0B0D] hover:border-indigo-400/50 hover:bg-[#1C1F26]'}`}
                     onClick={() => applyScenario(scenario.key as 'paymentFailure' | 'checkoutAbandonment' | 'fraudHold')}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <scenario.icon className="h-4 w-4 text-indigo-300" />
-                      <span className="font-mono text-[9px] text-[#908FA0]">{scenario.key === 'paymentFailure' ? '01' : scenario.key === 'checkoutAbandonment' ? '02' : '03'}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <scenario.icon className="h-4 w-4 text-[#64748B]" />
+                      <span className="text-xs text-[#64748B]">{formatCurrency(scenario.preset.amount)}</span>
                     </div>
-                    <div className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-200">{scenario.label}</div>
-                    <div className="mt-2 text-xs text-[#908FA0]">{scenario.description}</div>
-                    <div className="mt-3 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-[0.1em] text-[#C7C4D7]"><span>{scenario.preset.failure_reason}</span><span>{formatCurrency(scenario.preset.amount)}</span></div>
+                    <div className="mt-2 text-sm font-medium text-slate-200">{scenario.label}</div>
+                    <div className="mt-1 text-xs text-[#908FA0]">{scenario.description}</div>
                   </button>
                 ))}
               </div>
@@ -246,13 +206,13 @@ export function RecoveryCommandCenter({
               </Button>
             </div>
 
-            {error && (
+            {error && backendAvailable !== false && (
               <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>
             )}
           </div>
         </Panel>
 
-        <Panel title="AI Decision" subtitle={analysis ? 'Decision generated by the live backend' : 'Awaiting live analysis'} className="p-5">
+        <Panel title="Recovery recommendation" subtitle={analysis ? 'Recommendation from the recovery service' : 'Analyze a case to receive a recommendation'} className="p-5">
           <div className="space-y-4">
             <div className="border-l-2 border-indigo-400 bg-[#1C1F26] p-4">
               <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-indigo-300">
@@ -313,7 +273,7 @@ export function RecoveryCommandCenter({
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <Panel title="AI Reasoning" subtitle="Why the recovery engine selected this strategy." className="p-5">
+        <Panel title="Why this recommendation" subtitle="The factors behind the selected strategy." className="p-5">
           <div className="space-y-4">
             {analysis?.llm_generation ? (
               <>
@@ -436,7 +396,7 @@ export function RecoveryCommandCenter({
           )}
         </Panel>
 
-        <Panel title="Safety & Guardrails" subtitle="AI proposes. Deterministic safety rules authorize." className="p-5">
+        <Panel title="Safety controls" subtitle="AI proposes. Deterministic safety rules authorize." className="p-5">
           {analysis?.recommended_strategy === 'escalate_to_manual_review' || simulation?.simulation.status === 'escalated' ? (
             <div className="border-l-2 border-red-500 bg-red-500/10 p-4">
               <div className="flex items-center justify-between gap-3">
@@ -484,20 +444,6 @@ export function RecoveryCommandCenter({
         </Panel>
       </div>
 
-      {!backendAvailable && (
-        <div className="mt-6 border border-red-500/30 bg-[#14161A] p-5">
-          <div className="flex items-center gap-3 text-red-200">
-            <AlertTriangle className="h-5 w-5" />
-            <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-red-300">Recovery API unavailable</div>
-              <div className="mt-1 text-lg font-semibold text-slate-100">Unable to connect to the recovery service.</div>
-            </div>
-          </div>
-          <div className="mt-4 flex gap-3">
-            <Button type="button" variant="secondary" onClick={() => void onRefresh()}>Retry Connection</Button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

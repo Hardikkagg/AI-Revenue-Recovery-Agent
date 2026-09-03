@@ -65,14 +65,13 @@ export function KPIBar({ metrics }: KPIBarProps) {
       transition={{ duration: 0.4 }}
       className="overflow-hidden rounded-lg border border-[#2D3139] bg-[#14161A]"
     >
-      <div className="grid gap-px bg-[#2D3139] md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-px bg-[#D9E0E7] md:grid-cols-2 xl:grid-cols-3">
         {cards.map((metric) => (
-          <div key={metric.label} className={`bg-[#14161A] p-4 ${metric.emphasis ? 'border-l-2 border-emerald-500 bg-[#1C1F26]' : ''}`}>
+          <div key={metric.label} className={`bg-white p-4 ${metric.emphasis ? 'border-l-2 border-emerald-600' : ''}`}>
             <div className="flex items-center justify-between gap-3">
-              <div className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-[#908FA0]">{metric.label}</div>
-              {metric.emphasis && <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-emerald-300">Impact</span>}
+              <div className="text-xs font-medium text-[#64748B]">{metric.label}</div>
             </div>
-            <div className={`mt-4 font-mono font-medium tracking-tight text-slate-50 ${metric.emphasis ? 'text-4xl md:text-5xl' : 'text-3xl'}`}>
+            <div className={`mt-3 font-semibold tracking-tight text-[#172033] ${metric.emphasis ? 'text-3xl' : 'text-2xl'}`}>
               {metric.value}
             </div>
             <div className="mt-2 text-sm text-[#908FA0]">{metric.detail}</div>

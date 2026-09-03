@@ -31,7 +31,7 @@ function readable(value: string | null | undefined) {
 
 function MetricsSummary({ metrics }: { metrics: RecoveryMetricsResponse | null }) {
   if (!metrics) {
-    return <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-8 text-center text-sm text-[#908FA0]">Metrics will appear when the recovery API responds.</div>
+    return <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-3 text-sm text-[#908FA0]">Metrics will appear when the recovery API responds.</div>
   }
 
   return (
@@ -78,7 +78,7 @@ export function SecondaryViews({ view, metrics, analysis, simulation, rewardRati
             <div className="bg-[#14161A] p-4"><div className="font-mono text-[10px] uppercase text-[#908FA0]">Recovered</div><div className="mt-2 font-mono text-lg text-emerald-300">{formatCurrency(simulation.simulation.recovered_amount)}</div></div>
           </div>
         ) : (
-          <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-8 text-center text-sm text-[#908FA0]">No simulation result in the current session. Execute a recovery from Recovery Operations to populate this view.</div>
+          <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-3 text-sm text-[#908FA0]">No simulation result in the current session. Execute a recovery from Recovery Operations to populate this view.</div>
         )}
       </Panel>
     )
@@ -86,7 +86,7 @@ export function SecondaryViews({ view, metrics, analysis, simulation, rewardRati
 
   if (view === 'Learning') {
     return (
-      <Panel title="Learning" subtitle="Outcome → reward → policy update → future comparable decisions may adapt." className="p-5">
+      <Panel title="Learning" subtitle="Observed outcomes and policy feedback from this session." className="p-5">
         {simulation ? (
           <div className="space-y-4">
             <div className="grid gap-3 md:grid-cols-4">
@@ -102,7 +102,7 @@ export function SecondaryViews({ view, metrics, analysis, simulation, rewardRati
             <div className="border-l-2 border-amber-400 bg-amber-500/10 p-3 text-sm text-amber-100">Safety rules remain authoritative. Adaptive learning cannot override them.</div>
           </div>
         ) : (
-          <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-8 text-center text-sm text-[#908FA0]">Learning activates after a real simulation outcome is observed.</div>
+          <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-3 text-sm text-[#908FA0]">Learning activates after a real simulation outcome is observed.</div>
         )}
       </Panel>
     )
@@ -112,7 +112,7 @@ export function SecondaryViews({ view, metrics, analysis, simulation, rewardRati
     return (
       <Panel title="Strategy Performance" subtitle="Persisted results from GET /recovery/metrics." className="p-5">
         {!metrics || metrics.strategy_breakdown.length === 0 ? (
-          <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-8 text-center text-sm text-[#908FA0]">No recovery history yet.</div>
+          <div className="border border-dashed border-[#2D3139] bg-[#14161A] p-3 text-sm text-[#908FA0]">No recovery history yet.</div>
         ) : (
           <div className="overflow-x-auto"><table className="min-w-full text-left text-sm text-[#C7C4D7]"><thead className="bg-[#1C1F26]"><tr className="border-b border-[#2D3139] font-mono text-[10px] uppercase tracking-[0.12em] text-[#908FA0]"><th className="p-3">Strategy</th><th className="p-3">Cases</th><th className="p-3">Recovery Rate</th><th className="p-3">Revenue Recovered</th></tr></thead><tbody>{metrics.strategy_breakdown.map((row) => <tr key={row.strategy} className="border-b border-[#2D3139]"><td className="p-3 uppercase text-slate-100">{readable(row.strategy)}</td><td className="p-3 font-mono">{row.total_cases}</td><td className="p-3 font-mono">{(row.recovery_rate * 100).toFixed(1)}%</td><td className="p-3 font-mono text-emerald-300">{formatCurrency(row.revenue_recovered)}</td></tr>)}</tbody></table></div>
         )}
