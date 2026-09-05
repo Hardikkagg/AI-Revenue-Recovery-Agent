@@ -57,6 +57,18 @@ function readableStrategy(value: string | null | undefined) {
   return value ? value.replace(/_/g, ' ') : '—'
 }
 
+function readableLabel(value: string | null | undefined) {
+  return value ? value.replace(/_/g, ' ') : '—'
+}
+
+function decisionReason(analysis: AnalysisResult) {
+  const strategy = readableLabel(analysis.recommended_strategy)
+  const diagnosis = readableLabel(analysis.diagnosis.diagnosis_code)
+  const probability = Math.round(analysis.recovery_probability * 100)
+  const scoreSource = analysis.score_factors.some((factor) => factor.startsWith('ml_model=')) ? 'recovery model' : 'recovery scoring'
+  return `The system selected ${strategy} because the event was identified as ${diagnosis} and ${scoreSource} estimated a ${probability}% recovery likelihood.`
+}
+
 export function RecoveryCommandCenter({
   backendAvailable,
   analysis,
@@ -279,23 +291,23 @@ export function RecoveryCommandCenter({
               <>
                 <div className="border-l-2 border-indigo-400 bg-[#1C1F26] p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-indigo-200">
-                    <BrainCircuit className="h-3.5 w-3.5 text-blue-300" />
+                    <div className="flex items-center gap-2 text-sm font-medium text-indigo-200">
+                      <BrainCircuit className="h-3.5 w-3.5 text-blue-300" />
                       Reasoning source
                     </div>
                     <StatusBadge label={analysis.llm_generation.fallback_used ? 'Deterministic fallback' : 'LLM generated'} tone={analysis.llm_generation.fallback_used ? 'warning' : 'info'} />
                   </div>
-                  <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-[#908FA0]">{analysis.llm_generation.provider} / {analysis.llm_generation.model}</div>
-                  <p className="mt-4 text-sm leading-6 text-[#C7C4D7]">{analysis.llm_generation.reasoning}</p>
-                  {analysis.llm_generation.fallback_used && analysis.llm_generation.fallback_reason && (
-                    <div className="mt-3 border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
-                      {analysis.llm_generation.fallback_reason}
+                  <div className="mt-4 text-xs font-medium text-[#64748B]">Decision reasoning</div>
+                  <p className="mt-1 text-sm leading-6 text-[#C7C4D7]">{analysis.llm_generation.fallback_used ? decisionReason(analysis) : analysis.llm_generation.reasoning}</p>
+                  {analysis.llm_generation.fallback_used && (
+                    <div className="mt-3 border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700">
+                      Local reasoning model unavailable. Using deterministic fallback.
                     </div>
                   )}
                 </div>
                 <div className="border border-[#2D3139] bg-[#14161A] p-4">
-                  <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[#908FA0]">
-                    <Sparkles className="h-3.5 w-3.5 text-violet-300" />
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#475569]">
+                    <Sparkles className="h-3.5 w-3.5 text-[#64748B]" />
                     Customer-facing message
                   </div>
                   <div className="mt-3 whitespace-pre-line border-l border-[#2D3139] pl-3 text-sm leading-6 text-[#C7C4D7]">

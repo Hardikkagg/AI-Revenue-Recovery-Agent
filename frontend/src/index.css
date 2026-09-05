@@ -31,7 +31,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--bg-deep);
+  background: linear-gradient(180deg, #edf4f9 0%, #f4f6f8 360px, #f4f6f8 100%);
 }
 
 * {
@@ -74,7 +74,7 @@ button {
 
 [class~="bg-[#0A0B0D]"] { background-color: #f8fafc; }
 [class~="bg-[#14161A]"] { background-color: #ffffff; }
-[class~="bg-[#1C1F26]"] { background-color: #f1f5f9; }
+[class~="bg-[#1C1F26]"] { background-color: #f1f6fb; }
 [class~="border-[#2D3139]"] { border-color: #d9e0e7; }
 [class~="text-[#C7C4D7]"] { color: #475569; }
 [class~="text-[#908FA0]"] { color: #64748b; }
